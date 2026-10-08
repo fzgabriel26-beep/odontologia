@@ -3,7 +3,7 @@
 Software Design Document. Especificación viva del proyecto. Toda funcionalidad se
 implementa respetando este documento; los cambios de alcance se registran aquí primero.
 
-- **Versión:** 0.4 (Fase 4)
+- **Versión:** 0.5 (Fase 5)
 - **Fecha:** 2026-10-08
 - **Decisiones técnicas:** ver `docs/ADR.md`
 
@@ -178,7 +178,9 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
 - **patients:** `GET /patients?query=&status=`, `POST /patients`, `GET/PATCH /patients/:id`,
   `POST /patients/:id/archive`, `POST /patients/:id/restore` (la archivada reabre la ficha;
   nunca hay borrado físico)
-- **clinical-records:** `GET/POST /patients/:id/records`
+- **clinical-records:** `GET/POST /patients/:id/records`,
+  `POST /patients/:id/records/:recordId/archive` (la lista GET excluye las
+  archivadas; nunca hay borrado físico)
 - **odontogram:** `GET /patients/:id/teeth`, `GET /teeth/:id/events`,
   `POST /teeth/:id/events`, `POST /teeth/:id/files`,
   `GET /patients/:id/odontogram.pdf`
@@ -228,7 +230,7 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
 | 2   | Autenticación: login, sesión, rate limit, código, recuperación | ✅ Completada (2026-10-08) |
 | 3   | Usuarios: CRUD, roles, códigos de invitación (panel admin)     | ✅ Completada (2026-10-08) |
 | 4   | Pacientes: CRUD, búsqueda, ficha                               | ✅ Completada (2026-10-08) |
-| 5   | Historia clínica                                               | Pendiente                  |
+| 5   | Historia clínica                                               | ✅ Completada (2026-10-08) |
 | 6   | Odontograma (SVG FDI, estados, historial)                      | Pendiente                  |
 | 7   | Archivos (subida, visualización, descarga, ADR-003)            | Pendiente                  |
 | 8   | Agenda y turnos (estados, señas, cancelaciones, ausencias)     | Pendiente                  |

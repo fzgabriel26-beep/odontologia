@@ -56,3 +56,38 @@ export function patientAge(birthDate: string | null): number | null {
 export function patientFullName(patient: Pick<Patient, 'firstName' | 'lastName'>): string {
   return `${patient.lastName}, ${patient.firstName}`;
 }
+
+/* ------------------------------------------------------------------ */
+/* Historia clínica (fase 5)                                           */
+/* ------------------------------------------------------------------ */
+
+/** Autor de una evolución (visible en el listado: test "autor"). */
+export interface ClinicalRecordAuthor {
+  id: string;
+  firstName: string;
+  lastName: string;
+}
+
+/** Evolución de la historia clínica (GET/POST /patients/:id/records). */
+export interface ClinicalRecord {
+  id: string;
+  patientId: string;
+  /** Fecha date-only en ISO (aaaa-mm-ddT00:00:00.000Z). */
+  date: string;
+  time: string;
+  reason: string | null;
+  diagnosis: string | null;
+  treatment: string | null;
+  observations: string | null;
+  indications: string | null;
+  toothNumbers: number[];
+  createdById: string;
+  createdBy: ClinicalRecordAuthor;
+  createdAt: string;
+  archivedAt: string | null;
+}
+
+/** "Apellido, Nombre" del autor de una evolución. */
+export function clinicalAuthorName(author: ClinicalRecordAuthor): string {
+  return `${author.lastName}, ${author.firstName}`;
+}

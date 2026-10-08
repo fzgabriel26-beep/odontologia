@@ -9,6 +9,7 @@ import { PermissionsGuard } from './common/guards/permissions.guard';
 import { SessionGuard } from './common/guards/session.guard';
 import { AuditModule } from './audit/audit.module';
 import { AuthModule } from './auth/auth.module';
+import { ClinicalRecordsModule } from './clinical-records/clinical-records.module';
 import { HealthModule } from './health/health.module';
 import { InvitationCodesModule } from './invitation-codes/invitation-codes.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -30,6 +31,7 @@ import { UsersModule } from './users/users.module';
     AuditModule,
     NotificationsModule,
     AuthModule,
+    ClinicalRecordsModule,
     UsersModule,
     InvitationCodesModule,
     PatientsModule,

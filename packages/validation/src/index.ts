@@ -42,3 +42,5 @@ export type {
 } from './admin';
 export { createPatientSchema, listPatientsQuerySchema, updatePatientSchema } from './patient';
 export type { CreatePatientInput, ListPatientsQueryInput, UpdatePatientInput } from './patient';
+export { createClinicalRecordSchema, FDI_NUMBERS } from './clinical';
+export type { CreateClinicalRecordInput } from './clinical';
