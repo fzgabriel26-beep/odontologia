@@ -87,6 +87,46 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   OTRO: 'Otro',
 };
 
+/**
+ * Transiciones válidas de estado de un turno (SDD CU-13 / fase 8). El backend
+ * es la única autoridad que las aplica; esta tabla se comparte con la UI solo
+ * para habilitar los botones de "Cambiar estado". Los estados cerrados
+ * (ATENDIDO, CANCELADO, AUSENTE, REPROGRAMADO) no tienen salidas: el turno es
+ * ineliminable y queda como cierre de su historia.
+ */
+export const APPOINTMENT_TRANSITIONS: Record<AppointmentStatus, readonly AppointmentStatus[]> = {
+  PENDIENTE: ['CONFIRMADO', 'SENA_REALIZADA', 'PRESENTE', 'CANCELADO', 'AUSENTE', 'REPROGRAMADO'],
+  CONFIRMADO: ['SENA_REALIZADA', 'PRESENTE', 'CANCELADO', 'AUSENTE', 'REPROGRAMADO'],
+  SENA_REALIZADA: ['PRESENTE', 'CANCELADO', 'AUSENTE', 'REPROGRAMADO'],
+  PRESENTE: ['EN_ATENCION', 'REPROGRAMADO'],
+  EN_ATENCION: ['ATENDIDO', 'REPROGRAMADO'],
+  ATENDIDO: [],
+  CANCELADO: [],
+  AUSENTE: [],
+  REPROGRAMADO: [],
+};
+
+/** Estados finales: el turno quedó cerrado (sin edición ni nuevas transiciones). */
+export const APPOINTMENT_CLOSED_STATUSES: readonly AppointmentStatus[] = [
+  'ATENDIDO',
+  'CANCELADO',
+  'AUSENTE',
+  'REPROGRAMADO',
+];
+
+/** ¿La transición from → to está permitida? (La autoridad final es el backend.) */
+export function canTransitionAppointment(
+  from: AppointmentStatus,
+  to: AppointmentStatus,
+): boolean {
+  return APPOINTMENT_TRANSITIONS[from].includes(to);
+}
+
+/** El turno está en estado cerrado (no admite cambios). */
+export function isClosedAppointment(status: AppointmentStatus): boolean {
+  return APPOINTMENT_CLOSED_STATUSES.includes(status);
+}
+
 /* ------------------------------------------------------------------ */
 /* Odontograma (FDI)                                                   */
 /* ------------------------------------------------------------------ */

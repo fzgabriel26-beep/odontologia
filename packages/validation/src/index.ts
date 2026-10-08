@@ -48,3 +48,23 @@ export { createToothEventSchema, toothStatusSchema, updateToothSchema } from './
 export type { CreateToothEventInput, UpdateToothInput } from './odontogram';
 export { fileKindSchema, uploadFileFieldsSchema, uploadToToothFieldsSchema } from './files';
 export type { UploadFileFieldsInput, UploadToToothFieldsInput } from './files';
+export {
+  appointmentListQuerySchema,
+  appointmentStatsQuerySchema,
+  appointmentStatusSchema,
+  changeAppointmentStatusSchema,
+  createAppointmentSchema,
+  dateOnlySchema,
+  paymentMethodSchema,
+  registerSignaSchema,
+  timeOnlySchema,
+  updateAppointmentSchema,
+} from './appointments';
+export type {
+  AppointmentListQueryInput,
+  AppointmentStatsQueryInput,
+  ChangeAppointmentStatusInput,
+  CreateAppointmentInput,
+  RegisterSignaInput,
+  UpdateAppointmentInput,
+} from './appointments';

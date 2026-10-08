@@ -8,6 +8,7 @@ import { CsrfOriginGuard } from './common/guards/csrf-origin.guard';
 import { PermissionsGuard } from './common/guards/permissions.guard';
 import { SessionGuard } from './common/guards/session.guard';
 import { AuditModule } from './audit/audit.module';
+import { AppointmentsModule } from './appointments/appointments.module';
 import { AuthModule } from './auth/auth.module';
 import { ClinicalRecordsModule } from './clinical-records/clinical-records.module';
 import { FilesModule } from './files/files.module';
@@ -36,6 +37,7 @@ import { UsersModule } from './users/users.module';
     NotificationsModule,
     OdontogramModule,
     AuthModule,
+    AppointmentsModule,
     ClinicalRecordsModule,
     FilesModule,
     UsersModule,

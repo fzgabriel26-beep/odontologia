@@ -3,7 +3,7 @@
 Software Design Document. Especificación viva del proyecto. Toda funcionalidad se
 implementa respetando este documento; los cambios de alcance se registran aquí primero.
 
-- **Versión:** 0.7 (Fase 7)
+- **Versión:** 0.8 (Fase 8)
 - **Fecha:** 2026-10-08
 - **Decisiones técnicas:** ver `docs/ADR.md`
 
@@ -198,10 +198,25 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
   `FILE_ARCHIVED` si ya archivado; el binario nunca se borra). Permisos
   `files.read`/`files.write`; validación de extensión (whitelist), tamaño
   (`MAX_UPLOAD_MB`) y magic bytes antes de persistir.
-- **appointments:** `GET /appointments?from=&to=&professionalId=`,
-  `GET/POST /appointments`, `GET/PATCH /appointments/:id`,
-  `POST /appointments/:id/status`, `POST /appointments/:id/signa`,
-  `GET /patients/:id/appointments`, `GET /appointments/stats`
+- **appointments (fase 8):** `GET /appointments?from=&to=&professionalId=&status=`
+  (por defecto el día de hoy; orden fecha/hora), `POST /appointments` (nace
+  `PENDIENTE`; 404 `PATIENT_NOT_FOUND`/`PROFESSIONAL_NOT_FOUND`),
+  `GET/PATCH /appointments/:id` (el detalle incluye `events`; el PATCH solo
+  edita campos operativos de turnos abiertos — 409 `APPOINTMENT_CLOSED` — y no
+  reasigna paciente), `POST /appointments/:id/status` (CU-13: transición según
+  la tabla `APPOINTMENT_TRANSITIONS` de `@odonto/types` — 409
+  `INVALID_TRANSITION`; motivo obligatorio en CANCELADO/AUSENTE/REPROGRAMADO;
+  cada cambio crea un `AppointmentEvent` y audita `APPOINTMENT_STATUS_CHANGED`
+  / `APPOINTMENT_CANCELLED` / `APPOINTMENT_ABSENT_REGISTERED`),
+  `POST /appointments/:id/signa` (CU-14: pago/anulación de seña sin cambiar el
+  estado; audita `SIGNA_REGISTERED`; 409 sobre turnos cerrados),
+  `GET /appointments/professionals` (usuarios activos asignables; vive en este
+  módulo porque `/users` exige `users.manage`, solo admin),
+  `GET /appointments/stats?date=` (hoy, próximos y conteos por estado),
+  `GET /patients/:id/appointments` (historial completo del paciente, más
+  reciente primero). Permisos `appointments.read`/`appointments.write`. Los
+  turnos nunca se borran: estados cerrados ATENDIDO/CANCELADO/AUSENTE/
+  REPROGRAMADO sin salidas.
 - **audit (admin):** `GET /audit?action=&userId=&from=&to=`
 
 ## 10. Seguridad
@@ -229,6 +244,10 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
 - Dashboard: turnos del día, próximos turnos, pendientes, confirmados, atendidos,
   cancelaciones, ausencias + accesos rápidos (nuevo paciente, buscar paciente, nuevo
   turno, abrir agenda). Sin estadísticas innecesarias.
+- Agenda: vista diaria con navegación (◀ / Hoy / ▶), selector de fecha, filtro por
+  profesional, alta/edición de turnos, cambio de estado con motivo obligatorio,
+  registro/anulación de seña, historial de estados y badge de seña pendiente.
+  Las vistas semana/mes de §2.1 quedan pendientes de confirmación de alcance.
 - Ficha del paciente: pestañas Datos personales · Historia clínica · Odontograma ·
   Estudios/Archivos · Turnos · Historial.
 - Todo el texto en español.
@@ -245,7 +264,7 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
 | 5   | Historia clínica                                               | ✅ Completada (2026-10-08) |
 | 6   | Odontograma (SVG FDI, estados, historial)                      | ✅ Completada (2026-10-08) |
 | 7   | Archivos (subida, visualización, descarga, ADR-003)            | ✅ Completada (2026-10-08) |
-| 8   | Agenda y turnos (estados, señas, cancelaciones, ausencias)     | Pendiente                  |
+| 8   | Agenda y turnos (estados, señas, cancelaciones, ausencias)     | ✅ Completada (2026-10-08) |
 | 9   | Auditoría (interceptor + panel)                                | Pendiente                  |
 | 10  | PDF del odontograma (Playwright, ADR-004)                      | Pendiente                  |
 | 11  | Aplicación de escritorio (Tauri)                               | Pendiente                  |
