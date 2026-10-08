@@ -6,6 +6,9 @@ out/
 coverage/
 *.tsbuildinfo
 
+# Cliente Prisma generado (se regenera con `pnpm generate`)
+apps/api/src/generated/
+
 # Entorno
 .env
 .env.local

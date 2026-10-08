@@ -221,8 +221,8 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
 
 | # | Fase | Estado |
 |---|---|---|
-| 0 | Infraestructura: monorepo, Docker, config, CI, docs | **En curso** |
-| 1 | Base de datos: schema.prisma, migración inicial, seed | Pendiente |
+| 0 | Infraestructura: monorepo, Docker, config, CI, docs | ✅ Completada (2026-10-07) |
+| 1 | Base de datos: schema.prisma, migración inicial, seed | ✅ Completada (2026-10-08) |
 | 2 | Autenticación: login, sesión, rate limit, código, recuperación | Pendiente |
 | 3 | Usuarios: CRUD, roles, códigos de invitación (panel admin) | Pendiente |
 | 4 | Pacientes: CRUD, búsqueda, ficha | Pendiente |

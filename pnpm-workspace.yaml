@@ -4,5 +4,9 @@ packages:
 
 # Dependencias con scripts de instalación propios que deben ejecutarse.
 allowBuilds:
+  '@prisma/engines': true
   '@swc/core': true
+  argon2: true
   esbuild: true
+  prisma: true
+  workerd: true

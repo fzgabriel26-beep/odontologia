@@ -17,9 +17,9 @@ Decisiones arquitectónicas: [`docs/ADR.md`](docs/ADR.md).
 
 ## Requisitos
 
-- Node.js >= 20
+- Node.js >= 20.19
 - pnpm >= 10 (`npm install -g pnpm`)
-- Docker + Docker Compose (PostgreSQL y MinIO de desarrollo)
+- PostgreSQL >= 16 (en este entorno: instalación local, ver ADR-009; o Docker, ver `docker/README.md`)
 
 ## Puesta en marcha
 
@@ -27,26 +27,34 @@ Decisiones arquitectónicas: [`docs/ADR.md`](docs/ADR.md).
 # 1. Dependencias
 pnpm install
 
-# 2. Contenedores de desarrollo (PostgreSQL + MinIO)
-docker compose -f docker/docker-compose.yml up -d
-
-# 3. Variables de entorno
+# 2. Variables de entorno
 cp .env.example .env
+
+# 3. Base de datos (requiere PostgreSQL corriendo)
+pnpm db:migrate -- --name init   # migración inicial
+pnpm db:seed                     # roles + administrador inicial
 
 # 4. Desarrollo (api + web)
 pnpm dev
 ```
 
+Credenciales iniciales del administrador (desarrollo): `admin@consultorio.local` /
+`Admin1234!` — **cambiarlas en cuanto se inicie sesión**.
+
 ## Scripts
 
-| Script            | Descripción                              |
-| ----------------- | ---------------------------------------- |
-| `pnpm dev`        | Desarrollo de todas las apps             |
-| `pnpm build`      | Build de todas las apps y paquetes       |
-| `pnpm typecheck`  | Verificación de tipos en todo el monorepo|
-| `pnpm lint`       | ESLint en todo el repositorio            |
-| `pnpm test`       | Tests con Vitest                         |
-| `pnpm format`     | Formateo con Prettier                    |
+| Script                    | Descripción                                |
+| ------------------------- | ------------------------------------------ |
+| `pnpm dev`                | Desarrollo de todas las apps               |
+| `pnpm build`              | Genera el cliente Prisma y compila todo    |
+| `pnpm typecheck`          | Genera el cliente Prisma y verifica tipos  |
+| `pnpm lint`               | ESLint en todo el repositorio              |
+| `pnpm test`               | Tests con Vitest (incl. constraints de BD) |
+| `pnpm generate`           | Regenera el cliente Prisma                 |
+| `pnpm db:migrate -- --name <nombre>` | Crea/aplica migraciones         |
+| `pnpm db:seed`            | Seed idempotente (roles + admin)           |
+| `pnpm db:studio`          | Prisma Studio                              |
+| `pnpm format`             | Formateo con Prettier                      |
 
 ## Estructura
 

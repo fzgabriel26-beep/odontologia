@@ -1,0 +1,376 @@
+/**
+ * Esquema conceptual-técnico del Sistema de Gestión Odontológica.
+ * SDD §8 — Modelo de datos.
+ *
+ * Reglas:
+ *  - IDs internos UUID; el DNI jamás es primary key (solo UNIQUE).
+ *  - La información clínica no se elimina físicamente: FK Restrict + archivado.
+ *  - Tablas/mapeo en snake_case (@map / @@map).
+ */
+
+generator client {
+  provider = "prisma-client"
+  output   = "../apps/api/src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  // La URL se configura en prisma.config.ts (Prisma 7).
+}
+
+/* ------------------------------------------------------------------ */
+/* Enums                                                               */
+/* ------------------------------------------------------------------ */
+
+enum UserStatus {
+  ACTIVO
+  INACTIVO
+}
+
+enum PatientStatus {
+  ACTIVO
+  ARCHIVADO
+}
+
+enum InvitationStatus {
+  DISPONIBLE
+  UTILIZADO
+  EXPIRADO
+  REVOGADO
+}
+
+enum ToothType {
+  PERMANENTE
+  TEMPORAL
+}
+
+enum ToothStatus {
+  SANO
+  CARIES
+  RESTAURACION
+  CORONA
+  AUSENTE
+  EXTRACCION_INDICADA
+  EXTRACCION_REALIZADA
+  ENDODONCIA
+  IMPLANTE
+  PROTESIS
+  FRACTURA
+  RETENIDO
+  TRATAMIENTO_PENDIENTE
+  OTRO
+}
+
+enum AppointmentStatus {
+  PENDIENTE
+  CONFIRMADO
+  SENA_REALIZADA
+  PRESENTE
+  EN_ATENCION
+  ATENDIDO
+  CANCELADO
+  AUSENTE
+  REPROGRAMADO
+}
+
+enum PaymentMethod {
+  EFECTIVO
+  TARJETA
+  TRANSFERENCIA
+  OTRO
+}
+
+enum FileKind {
+  RADIOGRAFIA
+  FOTOGRAFIA
+  IMAGEN
+  PDF
+  DOCUMENTO
+  ESTUDIO
+}
+
+/* ------------------------------------------------------------------ */
+/* Acceso y usuarios                                                   */
+/* ------------------------------------------------------------------ */
+
+model Role {
+  id          String   @id @default(uuid()) @db.Uuid
+  key         String   @unique @db.VarChar(50)
+  name        String   @db.VarChar(100)
+  permissions Json
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  users User[]
+
+  @@map("roles")
+}
+
+model User {
+  id           String     @id @default(uuid()) @db.Uuid
+  firstName    String     @map("first_name") @db.VarChar(100)
+  lastName     String     @map("last_name") @db.VarChar(100)
+  dni          String     @unique @db.VarChar(20)
+  email        String     @unique @db.VarChar(255)
+  passwordHash String     @map("password_hash") @db.VarChar(255)
+  phone        String?    @db.VarChar(50)
+  roleId       String     @map("role_id") @db.Uuid
+  role         Role       @relation(fields: [roleId], references: [id])
+  status       UserStatus @default(ACTIVO)
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  lastLoginAt  DateTime?  @map("last_login_at")
+
+  sessions                Session[]
+  invitationCodesCreated  InvitationCode[]     @relation("InvitationCodeCreator")
+  invitationCodeUsed      InvitationCode[]     @relation("InvitationCodeUser")
+  clinicalRecords         ClinicalRecord[]
+  appointmentsCreated     Appointment[]        @relation("AppointmentCreator")
+  appointmentsManaged     Appointment[]        @relation("AppointmentProfessional")
+  appointmentsCancelled   Appointment[]        @relation("AppointmentCancelUser")
+  appointmentEvents       AppointmentEvent[]
+  toothEvents             ToothEvent[]
+  filesUploaded           MedicalFile[]
+  patientsCreated         Patient[]
+  auditLogs               AuditLog[]
+
+  @@index([lastName])
+  @@map("users")
+}
+
+model Session {
+  id        String    @id @default(uuid()) @db.Uuid
+  tokenHash String    @unique @map("token_hash") @db.VarChar(128)
+  userId    String    @map("user_id") @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime  @map("expires_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  revokedAt DateTime? @map("revoked_at")
+  ip        String?   @db.VarChar(45)
+  userAgent String?   @map("user_agent") @db.VarChar(255)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model InvitationCode {
+  id          String           @id @default(uuid()) @db.Uuid
+  code        String           @unique @db.VarChar(30)
+  status      InvitationStatus @default(DISPONIBLE)
+  expiresAt   DateTime?        @map("expires_at")
+  revokedAt   DateTime?        @map("revoked_at")
+  usedAt      DateTime?        @map("used_at")
+  createdById String           @map("created_by_id") @db.Uuid
+  createdBy   User             @relation("InvitationCodeCreator", fields: [createdById], references: [id])
+  usedById    String?          @map("used_by_id") @db.Uuid
+  usedBy      User?            @relation("InvitationCodeUser", fields: [usedById], references: [id])
+  createdAt   DateTime         @default(now()) @map("created_at")
+
+  @@index([status])
+  @@map("invitation_codes")
+}
+
+/* ------------------------------------------------------------------ */
+/* Pacientes e historia clínica                                        */
+/* ------------------------------------------------------------------ */
+
+model Patient {
+  id               String        @id @default(uuid()) @db.Uuid
+  firstName        String        @map("first_name") @db.VarChar(100)
+  lastName         String        @map("last_name") @db.VarChar(100)
+  dni              String        @unique @db.VarChar(20)
+  birthDate        DateTime?     @map("birth_date") @db.Date
+  phone            String?       @db.VarChar(50)
+  email            String?       @db.VarChar(255)
+  address          String?       @db.VarChar(255)
+  locality         String?       @db.VarChar(100)
+  province         String?       @db.VarChar(100)
+  emergencyContact String?       @map("emergency_contact") @db.VarChar(255)
+
+  healthInsurer String? @map("health_insurer") @db.VarChar(100)
+  memberNumber  String? @map("member_number") @db.VarChar(100)
+  allergies     String?
+  medications   String?
+  background    String?
+  notes         String?
+
+  status      PatientStatus @default(ACTIVO)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  archivedAt  DateTime?     @map("archived_at")
+  createdById String?       @map("created_by_id") @db.Uuid
+  createdBy   User?         @relation(fields: [createdById], references: [id])
+
+  clinicalRecords ClinicalRecord[]
+  teeth           Tooth[]
+  appointments    Appointment[]
+  files           MedicalFile[]
+
+  @@index([lastName])
+  @@index([status])
+  @@map("patients")
+}
+
+model ClinicalRecord {
+  id        String    @id @default(uuid()) @db.Uuid
+  patientId String    @map("patient_id") @db.Uuid
+  patient   Patient   @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  date      DateTime  @db.Date
+  time      String    @db.VarChar(5)
+  reason    String?
+  diagnosis String?
+  treatment String?
+  observations String?
+  indications  String?
+  toothNumbers Int[]  @map("tooth_numbers")
+  createdById String  @map("created_by_id") @db.Uuid
+  createdBy   User    @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now()) @map("created_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  @@index([patientId, date])
+  @@map("clinical_records")
+}
+
+/* ------------------------------------------------------------------ */
+/* Odontograma                                                         */
+/* ------------------------------------------------------------------ */
+
+model Tooth {
+  id            String       @id @default(uuid()) @db.Uuid
+  patientId     String       @map("patient_id") @db.Uuid
+  patient       Patient      @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  fdiNumber     Int          @map("fdi_number")
+  type          ToothType
+  currentStatus ToothStatus  @default(SANO) @map("current_status")
+  observations  String?
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  events ToothEvent[]
+  files  MedicalFile[]
+
+  @@unique([patientId, fdiNumber])
+  @@index([patientId])
+  @@map("teeth")
+}
+
+model ToothEvent {
+  id           String      @id @default(uuid()) @db.Uuid
+  toothId      String      @map("tooth_id") @db.Uuid
+  tooth        Tooth       @relation(fields: [toothId], references: [id], onDelete: Restrict)
+  status       ToothStatus
+  note         String?
+  eventDate    DateTime    @map("event_date") @db.Date
+  createdById  String      @map("created_by_id") @db.Uuid
+  createdBy    User        @relation(fields: [createdById], references: [id])
+  createdAt    DateTime    @default(now()) @map("created_at")
+
+  @@index([toothId, eventDate])
+  @@map("tooth_events")
+}
+
+/* ------------------------------------------------------------------ */
+/* Agenda y turnos                                                     */
+/* ------------------------------------------------------------------ */
+
+model Appointment {
+  id            String            @id @default(uuid()) @db.Uuid
+  patientId     String            @map("patient_id") @db.Uuid
+  patient       Patient           @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  professionalId String           @map("professional_id") @db.Uuid
+  professional  User              @relation("AppointmentProfessional", fields: [professionalId], references: [id])
+  date          DateTime          @db.Date
+  time          String            @db.VarChar(5)
+  durationMin   Int               @default(30) @map("duration_min")
+  reason        String?
+  status        AppointmentStatus @default(PENDIENTE)
+  observations  String?
+
+  signaRequired Boolean         @default(false) @map("signa_required")
+  signaAmount   Decimal?        @db.Decimal(10, 2) @map("signa_amount")
+  signaPaid     Boolean         @default(false) @map("signa_paid")
+  signaReceived Decimal?        @db.Decimal(10, 2) @map("signa_received")
+  signaDate     DateTime?       @db.Date @map("signa_date")
+  signaMethod   PaymentMethod?  @map("signa_method")
+  signaNotes    String?         @map("signa_notes")
+
+  cancelledAt   DateTime? @map("cancelled_at")
+  cancelledById String?   @map("cancelled_by_id") @db.Uuid
+  cancelledBy   User?     @relation("AppointmentCancelUser", fields: [cancelledById], references: [id])
+  cancelReason  String?   @map("cancel_reason")
+
+  createdById String   @map("created_by_id") @db.Uuid
+  createdBy   User     @relation("AppointmentCreator", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  events AppointmentEvent[]
+
+  @@index([date])
+  @@index([patientId, date])
+  @@index([professionalId, date])
+  @@map("appointments")
+}
+
+model AppointmentEvent {
+  id             String            @id @default(uuid()) @db.Uuid
+  appointmentId  String            @map("appointment_id") @db.Uuid
+  appointment    Appointment       @relation(fields: [appointmentId], references: [id], onDelete: Restrict)
+  fromStatus     AppointmentStatus? @map("from_status")
+  toStatus       AppointmentStatus @map("to_status")
+  reason         String?
+  createdById    String            @map("created_by_id") @db.Uuid
+  createdBy      User              @relation(fields: [createdById], references: [id])
+  createdAt      DateTime          @default(now()) @map("created_at")
+
+  @@index([appointmentId, createdAt])
+  @@map("appointment_events")
+}
+
+/* ------------------------------------------------------------------ */
+/* Archivos médicos                                                    */
+/* ------------------------------------------------------------------ */
+
+model MedicalFile {
+  id           String   @id @default(uuid()) @db.Uuid
+  patientId    String   @map("patient_id") @db.Uuid
+  patient      Patient  @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  toothId      String?  @map("tooth_id") @db.Uuid
+  tooth        Tooth?   @relation(fields: [toothId], references: [id], onDelete: Restrict)
+  name         String   @db.VarChar(255)
+  originalName String   @map("original_name") @db.VarChar(255)
+  kind         FileKind
+  mimeType     String   @map("mime_type") @db.VarChar(100)
+  size         Int
+  storageKey   String   @unique @map("storage_key") @db.VarChar(500)
+  description  String?
+  uploadedById String   @map("uploaded_by_id") @db.Uuid
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  createdAt    DateTime @default(now()) @map("created_at")
+  archivedAt   DateTime? @map("archived_at")
+
+  @@index([patientId])
+  @@index([toothId])
+  @@map("medical_files")
+}
+
+/* ------------------------------------------------------------------ */
+/* Auditoría (insert-only: nunca se modifica ni elimina desde la app)  */
+/* ------------------------------------------------------------------ */
+
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String?  @map("user_id") @db.Uuid
+  user       User?    @relation(fields: [userId], references: [id])
+  action     String   @db.VarChar(60)
+  entityType String   @map("entity_type") @db.VarChar(50)
+  entityId   String?  @map("entity_id") @db.Uuid
+  metadata   Json?
+  ip         String?  @db.VarChar(45)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([entityType, entityId])
+  @@index([userId, createdAt])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

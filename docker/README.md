@@ -2,6 +2,10 @@
 
 Stack de desarrollo del monorepo: PostgreSQL y MinIO (object storage compatible con S3).
 
+> **Nota (ADR-009):** en esta máquina el desarrollo usa **PostgreSQL 16 local**
+> (servicio `postgresql-x64-16`, puerto 5432). Este compose queda como referencia
+> para otros entornos y para MinIO en la fase 7 (archivos).
+
 ## Levantar
 
 ```bash
