@@ -1,6 +1,6 @@
 packages:
-  - "apps/*"
-  - "packages/*"
+  - 'apps/*'
+  - 'packages/*'
 
 # Dependencias con scripts de instalación propios que deben ejecutarse.
 allowBuilds:

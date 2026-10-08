@@ -3,8 +3,8 @@
 Software Design Document. Especificación viva del proyecto. Toda funcionalidad se
 implementa respetando este documento; los cambios de alcance se registran aquí primero.
 
-- **Versión:** 0.1 (Fase 0)
-- **Fecha:** 2026-10-07
+- **Versión:** 0.2 (Fase 2)
+- **Fecha:** 2026-10-08
 - **Decisiones técnicas:** ver `docs/ADR.md`
 
 ---
@@ -16,8 +16,7 @@ consultorio odontológico: acceso y usuarios, pacientes, historias clínicas,
 odontogramas, estudios/archivos, agenda de turnos, cancelaciones, ausencias, señas e
 historial de actividad.
 
-Prioridades: **1. Seguridad · 2. Privacidad · 3. Integridad · 4. Trazabilidad ·
-5. Usabilidad · 6. Mantenibilidad · 7. Escalabilidad.**
+Prioridades: **1. Seguridad · 2. Privacidad · 3. Integridad · 4. Trazabilidad · 5. Usabilidad · 6. Mantenibilidad · 7. Escalabilidad.**
 
 No es un CRUD simple: la información clínica se trata como información sensible.
 
@@ -25,16 +24,16 @@ No es un CRUD simple: la información clínica se trata como información sensib
 
 ### 2.1 MVP (incluido)
 
-| Módulo | Funciones |
-|---|---|
-| Autenticación | Login, registro por código de invitación, recuperación de contraseña, usuarios, roles |
-| Pacientes | Alta, edición, consulta, búsqueda, DNI obligatorio y único |
-| Historia clínica | Crear registros, consultar registros, historial |
-| Odontograma | FDI, permanente y temporal, estados, historial por diente, archivos por diente, exportación PDF |
-| Agenda | Día/semana/mes, crear turno, modificar, cancelar, ausente, seña, historial |
-| Archivos | Subir, visualizar, descargar, asociar a paciente y a diente |
-| Auditoría | Acciones relevantes |
-| Escritorio | Aplicación Tauri sobre la app web, mismo backend |
+| Módulo           | Funciones                                                                                       |
+| ---------------- | ----------------------------------------------------------------------------------------------- |
+| Autenticación    | Login, registro por código de invitación, recuperación de contraseña, usuarios, roles           |
+| Pacientes        | Alta, edición, consulta, búsqueda, DNI obligatorio y único                                      |
+| Historia clínica | Crear registros, consultar registros, historial                                                 |
+| Odontograma      | FDI, permanente y temporal, estados, historial por diente, archivos por diente, exportación PDF |
+| Agenda           | Día/semana/mes, crear turno, modificar, cancelar, ausente, seña, historial                      |
+| Archivos         | Subir, visualizar, descargar, asociar a paciente y a diente                                     |
+| Auditoría        | Acciones relevantes                                                                             |
+| Escritorio       | Aplicación Tauri sobre la app web, mismo backend                                                |
 
 ### 2.2 Fuera del MVP (no implementar)
 
@@ -44,18 +43,18 @@ externas no especificadas. La arquitectura debe quedar preparada para incorporar
 
 ## 3. Stack obligatorio
 
-| Capa | Tecnología |
-|---|---|
-| Frontend | Next.js, React, TypeScript, Tailwind CSS, shadcn/ui |
-| Formularios/validación | Zod, React Hook Form |
-| Backend | NestJS, TypeScript, API REST, OpenAPI/Swagger |
-| Base de datos | PostgreSQL, Prisma ORM |
-| Escritorio | Tauri (reutiliza la app web; sin lógica de negocio duplicada) |
-| Monorepo | pnpm, Turborepo |
-| Tests | Vitest, Playwright |
-| Contenedores | Docker |
-| Archivos | Object Storage compatible con S3 |
-| Odontograma | React + SVG interactivo (nunca imagen estática) |
+| Capa                   | Tecnología                                                    |
+| ---------------------- | ------------------------------------------------------------- |
+| Frontend               | Next.js, React, TypeScript, Tailwind CSS, shadcn/ui           |
+| Formularios/validación | Zod, React Hook Form                                          |
+| Backend                | NestJS, TypeScript, API REST, OpenAPI/Swagger                 |
+| Base de datos          | PostgreSQL, Prisma ORM                                        |
+| Escritorio             | Tauri (reutiliza la app web; sin lógica de negocio duplicada) |
+| Monorepo               | pnpm, Turborepo                                               |
+| Tests                  | Vitest, Playwright                                            |
+| Contenedores           | Docker                                                        |
+| Archivos               | Object Storage compatible con S3                              |
+| Odontograma            | React + SVG interactivo (nunca imagen estática)               |
 
 ## 4. Arquitectura
 
@@ -118,23 +117,23 @@ interceptores transversales.
 
 ## 6. Casos de uso principales
 
-| # | Caso | Actor | Flujo esencial |
-|---|---|---|---|
-| CU-01 | Iniciar sesión | Cualquier usuario | Email+contraseña → sesión; falla si inactivo o bloqueado por rate limit |
-| CU-02 | Registrarse por código | Invitado | Código válido → crea cuenta → código pasa a Utilizado |
-| CU-03 | Recuperar contraseña | Usuario | Solicita → token de un solo uso (MailProvider stub o reset por admin) |
-| CU-04 | Gestionar códigos | Administrador | Generar / revocar / consultar códigos |
-| CU-05 | Gestionar usuarios | Administrador | Crear, editar rol, activar/desactivar |
-| CU-06 | Crear paciente | Personal | Formulario completo → DNI único validado |
-| CU-07 | Buscar paciente | Personal | Query sobre nombre/apellido/DNI/teléfono/email |
-| CU-08 | Registrar evolución | Personal | Nuevo registro clínico con motivo, diagnóstico, tratamiento, dientes |
-| CU-09 | Gestionar odontograma | Personal | Seleccionar diente → ver estado/historial → registrar evento |
-| CU-10 | Adjuntar archivo a diente | Personal | Subir con validación MIME/tamaño → asociar paciente+diente |
-| CU-11 | Exportar odontograma PDF | Personal | Backend genera PDF con encabezado, FDI, estados y leyenda |
-| CU-12 | Crear turno | Personal | Paciente, profesional, fecha/hora, duración, motivo |
-| CU-13 | Cambiar estado de turno | Personal | Transición válida; cancelación/ausencia con motivo |
-| CU-14 | Registrar seña | Personal | Monto, si fue abonado, monto recibido, fecha, método |
-| CU-15 | Consultar auditoría | Administrador | Filtros por acción, usuario, fecha |
+| #     | Caso                      | Actor             | Flujo esencial                                                          |
+| ----- | ------------------------- | ----------------- | ----------------------------------------------------------------------- |
+| CU-01 | Iniciar sesión            | Cualquier usuario | Email+contraseña → sesión; falla si inactivo o bloqueado por rate limit |
+| CU-02 | Registrarse por código    | Invitado          | Código válido → crea cuenta → código pasa a Utilizado                   |
+| CU-03 | Recuperar contraseña      | Usuario           | Solicita → token de un solo uso (MailProvider stub o reset por admin)   |
+| CU-04 | Gestionar códigos         | Administrador     | Generar / revocar / consultar códigos                                   |
+| CU-05 | Gestionar usuarios        | Administrador     | Crear, editar rol, activar/desactivar                                   |
+| CU-06 | Crear paciente            | Personal          | Formulario completo → DNI único validado                                |
+| CU-07 | Buscar paciente           | Personal          | Query sobre nombre/apellido/DNI/teléfono/email                          |
+| CU-08 | Registrar evolución       | Personal          | Nuevo registro clínico con motivo, diagnóstico, tratamiento, dientes    |
+| CU-09 | Gestionar odontograma     | Personal          | Seleccionar diente → ver estado/historial → registrar evento            |
+| CU-10 | Adjuntar archivo a diente | Personal          | Subir con validación MIME/tamaño → asociar paciente+diente              |
+| CU-11 | Exportar odontograma PDF  | Personal          | Backend genera PDF con encabezado, FDI, estados y leyenda               |
+| CU-12 | Crear turno               | Personal          | Paciente, profesional, fecha/hora, duración, motivo                     |
+| CU-13 | Cambiar estado de turno   | Personal          | Transición válida; cancelación/ausencia con motivo                      |
+| CU-14 | Registrar seña            | Personal          | Monto, si fue abonado, monto recibido, fecha, método                    |
+| CU-15 | Consultar auditoría       | Administrador     | Filtros por acción, usuario, fecha                                      |
 
 ## 7. Requisitos no funcionales
 
@@ -150,7 +149,8 @@ interceptores transversales.
 ## 8. Modelo de datos (resumen)
 
 Entidades: `User`, `Role`, `InvitationCode`, `Patient`, `ClinicalRecord`, `Tooth`,
-`ToothEvent`, `Appointment`, `AppointmentEvent`, `MedicalFile`, `AuditLog`, `Session`.
+`ToothEvent`, `Appointment`, `AppointmentEvent`, `MedicalFile`, `AuditLog`, `Session`,
+`PasswordResetToken`.
 
 - IDs internos **UUID**; DNI con constraint `UNIQUE` (jamás primary key).
 - `UNIQUE(email)` en User; `UNIQUE(patientId, fdiNumber)` en Tooth.
@@ -219,21 +219,21 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
 
 ## 12. Plan de implementación (fases)
 
-| # | Fase | Estado |
-|---|---|---|
-| 0 | Infraestructura: monorepo, Docker, config, CI, docs | ✅ Completada (2026-10-07) |
-| 1 | Base de datos: schema.prisma, migración inicial, seed | ✅ Completada (2026-10-08) |
-| 2 | Autenticación: login, sesión, rate limit, código, recuperación | Pendiente |
-| 3 | Usuarios: CRUD, roles, códigos de invitación (panel admin) | Pendiente |
-| 4 | Pacientes: CRUD, búsqueda, ficha | Pendiente |
-| 5 | Historia clínica | Pendiente |
-| 6 | Odontograma (SVG FDI, estados, historial) | Pendiente |
-| 7 | Archivos (subida, visualización, descarga, ADR-003) | Pendiente |
-| 8 | Agenda y turnos (estados, señas, cancelaciones, ausencias) | Pendiente |
-| 9 | Auditoría (interceptor + panel) | Pendiente |
-| 10 | PDF del odontograma (Playwright, ADR-004) | Pendiente |
-| 11 | Aplicación de escritorio (Tauri) | Pendiente |
-| 12 | E2E, hardening, backups/restauración | Pendiente |
+| #   | Fase                                                           | Estado                     |
+| --- | -------------------------------------------------------------- | -------------------------- |
+| 0   | Infraestructura: monorepo, Docker, config, CI, docs            | ✅ Completada (2026-10-07) |
+| 1   | Base de datos: schema.prisma, migración inicial, seed          | ✅ Completada (2026-10-08) |
+| 2   | Autenticación: login, sesión, rate limit, código, recuperación | ✅ Completada (2026-10-08) |
+| 3   | Usuarios: CRUD, roles, códigos de invitación (panel admin)     | Pendiente                  |
+| 4   | Pacientes: CRUD, búsqueda, ficha                               | Pendiente                  |
+| 5   | Historia clínica                                               | Pendiente                  |
+| 6   | Odontograma (SVG FDI, estados, historial)                      | Pendiente                  |
+| 7   | Archivos (subida, visualización, descarga, ADR-003)            | Pendiente                  |
+| 8   | Agenda y turnos (estados, señas, cancelaciones, ausencias)     | Pendiente                  |
+| 9   | Auditoría (interceptor + panel)                                | Pendiente                  |
+| 10  | PDF del odontograma (Playwright, ADR-004)                      | Pendiente                  |
+| 11  | Aplicación de escritorio (Tauri)                               | Pendiente                  |
+| 12  | E2E, hardening, backups/restauración                           | Pendiente                  |
 
 **Definición de "terminada":** UI + backend + persistencia + validaciones +
 autorización + manejo de errores + tests cuando corresponda + auditoría cuando

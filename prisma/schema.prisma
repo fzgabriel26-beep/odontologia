@@ -100,7 +100,8 @@ model Role {
   permissions Json
   createdAt   DateTime @default(now()) @map("created_at")
 
-  users User[]
+  users            User[]
+  invitationCodes  InvitationCode[]
 
   @@map("roles")
 }
@@ -121,6 +122,7 @@ model User {
   lastLoginAt  DateTime?  @map("last_login_at")
 
   sessions                Session[]
+  passwordResetTokens     PasswordResetToken[]
   invitationCodesCreated  InvitationCode[]     @relation("InvitationCodeCreator")
   invitationCodeUsed      InvitationCode[]     @relation("InvitationCodeUser")
   clinicalRecords         ClinicalRecord[]
@@ -152,10 +154,28 @@ model Session {
   @@map("sessions")
 }
 
+/// Token de un solo uso para recuperar contraseña (ADR-005).
+/// Solo se persiste su hash; el valor en claro se envía por MailProvider.
+model PasswordResetToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique @map("token_hash") @db.VarChar(128)
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
 model InvitationCode {
   id          String           @id @default(uuid()) @db.Uuid
   code        String           @unique @db.VarChar(30)
   status      InvitationStatus @default(DISPONIBLE)
+  // Rol que se asignará al usuario que registre con este código.
+  roleId      String           @map("role_id") @db.Uuid
+  role        Role             @relation(fields: [roleId], references: [id])
   expiresAt   DateTime?        @map("expires_at")
   revokedAt   DateTime?        @map("revoked_at")
   usedAt      DateTime?        @map("used_at")

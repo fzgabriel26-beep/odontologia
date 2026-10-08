@@ -1,0 +1,121 @@
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { config } from 'dotenv';
+import type { INestApplication } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
+import request from 'supertest';
+
+/**
+ * Tests HTTP de autenticación (SDD, fase 2): flujo de cookie httpOnly,
+ * guard de sesión, validación de body y control CSRF (ADR-012).
+ * Usa la cuenta del seed (admin@consultorio.local).
+ */
+
+const envPath = ['../../.env', '../.env', '.env']
+  .map((candidate) => resolve(process.cwd(), candidate))
+  .find((candidate) => existsSync(candidate));
+
+if (envPath) {
+  config({ path: envPath });
+}
+
+describe('Autenticación HTTP (cookie de sesión)', () => {
+  let app: INestApplication;
+
+  beforeAll(async () => {
+    const { AppModule } = await import('../app.module');
+    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    app = moduleRef.createNestApplication();
+    await app.init();
+  });
+
+  afterAll(async () => {
+    await app?.close();
+  });
+
+  it('rechaza credenciales inválidas con mensaje genérico en español', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: 'admin@consultorio.local', password: 'PasswordIncorrecta1' });
+
+    expect(response.status).toBe(401);
+    expect(response.body.error.code).toBe('INVALID_CREDENTIALS');
+    expect(response.body.error.message).toBe('Email o contraseña incorrectos.');
+    expect(response.headers['set-cookie']).toBeUndefined();
+  });
+
+  it('valida el body con Zod antes de tocar la base', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: 'no-es-un-email', password: '' });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    expect(response.body.error.fields.email).toBeTruthy();
+    expect(response.body.error.fields.password).toBeTruthy();
+  });
+
+  it('hace login, expone /me con la cookie y cierra la sesión con logout', async () => {
+    const login = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: 'admin@consultorio.local',
+        password: process.env.SEED_ADMIN_PASSWORD ?? 'Admin1234!',
+      });
+
+    expect(login.status).toBe(200);
+    expect(login.body.user.email).toBe('admin@consultorio.local');
+    expect(login.body.user.permissions.length).toBeGreaterThan(0);
+
+    const cookie = login.headers['set-cookie'][0] as string;
+    expect(cookie).toContain('odon_session=');
+    expect(cookie.toLowerCase()).toContain('httponly');
+    expect(cookie.toLowerCase()).toContain('samesite=lax');
+    const sessionCookie = cookie.split(';')[0];
+
+    // Sin cookie →401.
+    const withoutCookie = await request(app.getHttpServer()).get('/auth/me');
+    expect(withoutCookie.status).toBe(401);
+    expect(withoutCookie.body.error.code).toBe('UNAUTHORIZED');
+
+    // Con cookie → perfil.
+    const me = await request(app.getHttpServer()).get('/auth/me').set('Cookie', sessionCookie);
+    expect(me.status).toBe(200);
+    expect(me.body.user.email).toBe('admin@consultorio.local');
+    expect(me.body.user.role.key).toBe('ADMIN');
+
+    // Logout → revoca y limpia la cookie.
+    const logout = await request(app.getHttpServer())
+      .post('/auth/logout')
+      .set('Cookie', sessionCookie);
+    expect(logout.status).toBe(200);
+    expect(logout.headers['set-cookie'][0]).toContain('odon_session=;');
+
+    const meAfterLogout = await request(app.getHttpServer())
+      .get('/auth/me')
+      .set('Cookie', sessionCookie);
+    expect(meAfterLogout.status).toBe(401);
+    expect(meAfterLogout.body.error.code).toBe('SESSION_EXPIRED');
+  });
+
+  it('bloquea requests mutantes con Origin de un sitio de terceros (CSRF)', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/auth/login')
+      .set('Origin', 'https://sitio-malicioso.example')
+      .send({ email: 'admin@consultorio.local', password: 'Cualquiera1' });
+
+    expect(response.status).toBe(403);
+    expect(response.body.error.code).toBe('CSRF_ORIGIN_REJECTED');
+  });
+
+  it('permite el Origin del frontend configurado (WEB_ORIGIN)', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/auth/login')
+      .set('Origin', process.env.WEB_ORIGIN ?? 'http://localhost:3000')
+      .send({ email: 'admin@consultorio.local', password: 'PasswordIncorrecta1' });
+
+    // Llega al servicio de auth (401), no lo corta el guard CSRF.
+    expect(response.status).toBe(401);
+    expect(response.body.error.code).toBe('INVALID_CREDENTIALS');
+  });
+});

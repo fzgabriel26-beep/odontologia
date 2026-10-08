@@ -10,10 +10,20 @@
     "test": "echo \"(web) tests e2e en la fase 12\""
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.9.1",
+    "@odonto/types": "workspace:*",
     "@odonto/ui": "workspace:*",
+    "@odonto/validation": "workspace:*",
+    "@radix-ui/react-label": "^2.1.16",
+    "@radix-ui/react-slot": "^1.4.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "next": "^15.5.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-hook-form": "^7.89.0",
+    "tailwind-merge": "^3.7.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.0",

@@ -11,11 +11,11 @@ services:
       POSTGRES_DB: odontologia
       TZ: America/Argentina/Buenos_Aires
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - odontologia_pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U odontologia -d odontologia"]
+      test: ['CMD-SHELL', 'pg_isready -U odontologia -d odontologia']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -31,12 +31,12 @@ services:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     volumes:
       - odontologia_miniodata:/data
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: ['CMD', 'mc', 'ready', 'local']
       interval: 5s
       timeout: 5s
       retries: 10

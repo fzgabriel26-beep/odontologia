@@ -131,8 +131,8 @@ export const TOOTH_STATUS_LABELS: Record<ToothStatus, string> = {
 
 /** Numeración FDI de dientes permanentes (por cuadrante). */
 export const PERMANENT_TEETH_FDI: readonly number[] = [
-  18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28, 48, 47, 46, 45, 44, 43,
-  42, 41, 31, 32, 33, 34, 35, 36, 37, 38,
+  18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28, 48, 47, 46, 45, 44, 43, 42, 41,
+  31, 32, 33, 34, 35, 36, 37, 38,
 ];
 
 /** Numeración FDI de dientes temporales/deciduos (por cuadrante). */
@@ -144,7 +144,14 @@ export const TEMPORARY_TEETH_FDI: readonly number[] = [
 /* Archivos                                                            */
 /* ------------------------------------------------------------------ */
 
-export const FILE_KINDS = ['RADIOGRAFIA', 'FOTOGRAFIA', 'IMAGEN', 'PDF', 'DOCUMENTO', 'ESTUDIO'] as const;
+export const FILE_KINDS = [
+  'RADIOGRAFIA',
+  'FOTOGRAFIA',
+  'IMAGEN',
+  'PDF',
+  'DOCUMENTO',
+  'ESTUDIO',
+] as const;
 export type FileKind = (typeof FILE_KINDS)[number];
 
 export const FILE_KIND_LABELS: Record<FileKind, string> = {
@@ -157,14 +164,7 @@ export const FILE_KIND_LABELS: Record<FileKind, string> = {
 };
 
 /** Extensiones permitidas para subida (whitelist). */
-export const ALLOWED_FILE_EXTENSIONS = [
-  '.png',
-  '.jpg',
-  '.jpeg',
-  '.webp',
-  '.dcm',
-  '.pdf',
-] as const;
+export const ALLOWED_FILE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp', '.dcm', '.pdf'] as const;
 
 /** MIME types aceptados (validación de contenido en backend). */
 export const ALLOWED_MIME_TYPES = [
@@ -186,6 +186,7 @@ export const AUDIT_ACTIONS = [
   'PASSWORD_RESET_REQUESTED',
   'PASSWORD_RESET_COMPLETED',
   'PASSWORD_RESET_BY_ADMIN',
+  'PASSWORD_CHANGED',
   'PATIENT_CREATED',
   'PATIENT_UPDATED',
   'PATIENT_ARCHIVED',
@@ -210,3 +211,16 @@ export const AUDIT_ACTIONS = [
   'INVITATION_CODE_REVOKED',
 ] as const;
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
+
+/**
+ * Usuario autenticado que devuelve la API en /auth/login, /auth/me y /auth/register.
+ * El backend (AuthService) responde con esta misma forma.
+ */
+export interface SessionUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: { key: string; name: string };
+  permissions: string[];
+}

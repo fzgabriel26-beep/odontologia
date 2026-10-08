@@ -6,3 +6,19 @@
  * Cada fase agrega aquí los esquemas de su módulo.
  */
 export { dniSchema, isValidDni, normalizeDni } from './dni';
+export { PASSWORD_POLICY_MESSAGE, emailSchema, passwordSchema } from './password';
+export {
+  changePasswordSchema,
+  forgotPasswordSchema,
+  invitationCodeSchema,
+  loginSchema,
+  registerSchema,
+  resetPasswordSchema,
+} from './auth';
+export type {
+  ChangePasswordInput,
+  ForgotPasswordInput,
+  LoginInput,
+  RegisterInput,
+  ResetPasswordInput,
+} from './auth';

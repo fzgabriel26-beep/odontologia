@@ -1,4 +1,7 @@
+import Link from 'next/link';
 import { EmptyState } from '@odonto/ui';
+import { buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 /**
  * Pantalla inicial sin sesión (SDD §11).
@@ -6,9 +9,6 @@ import { EmptyState } from '@odonto/ui';
  * Solo puede ofrecer: iniciar sesión, registrarse con código de invitación y
  * recuperar contraseña. No se muestra ninguna información del consultorio
  * (pacientes, agenda, historias clínicas, etc.).
- *
- * Fase 0: estructura base. Las rutas /login, /registro y /recuperar se
- * implementan en la fase 2 (Autenticación).
  */
 export default function PublicLandingPage() {
   return (
@@ -23,14 +23,27 @@ export default function PublicLandingPage() {
           title="Iniciar sesión"
           description="Ingresá con tu email y contraseña."
           action={
-            <a
-              href="/login"
-              className="mt-2 rounded-md bg-neutral-900 px-4 py-2 text-sm text-white hover:opacity-90"
-            >
+            <Link href="/login" className={cn(buttonVariants({ size: 'default' }), 'mt-2')}>
               Ir al login
-            </a>
+            </Link>
           }
         />
+
+        <div className="flex items-center justify-center gap-4 text-sm">
+          <Link
+            href="/registro"
+            className="underline-offset-4 hover:text-foreground hover:underline"
+          >
+            Crear cuenta con código
+          </Link>
+          <span className="opacity-40">·</span>
+          <Link
+            href="/recuperar"
+            className="underline-offset-4 hover:text-foreground hover:underline"
+          >
+            Recuperar contraseña
+          </Link>
+        </div>
       </div>
     </main>
   );

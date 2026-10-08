@@ -88,3 +88,19 @@ Fecha en formato AAAA-MM-DD.
 - **Contexto:** La auditoría debe registrar acciones aunque aparezcan nuevas; fallar un INSERT por un enum desactualizado es inaceptable.
 - **Decisión:** `action` y `entityType` se guardan como `VARCHAR` (catálogo de acciones en `packages/types`, `AUDIT_ACTIONS`).
 - **Consecuencias:** La app controla los valores; la BD no rechaza acciones nuevas. Se puede migrar a enum más adelante si se desea.
+
+## ADR-012 — Protección CSRF: cookie `SameSite=Lax` + validación de `Origin` en el backend
+
+- **Fecha:** 2026-10-08
+- **Contexto:** El SDD pide protección CSRF sin intervención obligatoria del frontend: la sesión viaja en cookie, por lo que un sitio de terceros podría intentar requests mutantes.
+- **Decisión:** Control enteramente del lado del servidor, en dos capas:
+  1. La cookie de sesión se emite con `SameSite=Lax` + `httpOnly` (y `secure` en producción), de modo que un navegador no adjunta la cookie en requests mutantes cruzados.
+  2. `CsrfOriginGuard` rechaza con `403 CSRF_ORIGIN_REJECTED` todo `POST/PUT/PATCH/DELETE` cuya cabecera `Origin` no coincida con `WEB_ORIGIN`, `CSRF_ORIGINS` ni el host de la API. Requests sin `Origin` (clientes no navegador) no se validan.
+- **Consecuencias:** Sin tokens CSRF ni cambios en el frontend; los E2E y `curl` siguen funcionando. Si algún día el frontend se sirve de otro origen, se agrega a `CSRF_ORIGINS`.
+
+## ADR-013 — El código de invitación define el rol que recibirá la cuenta
+
+- **Fecha:** 2026-10-08
+- **Contexto:** El registro es solo por código de invitación y toda cuenta necesita un rol; el SDD no especifica quién decide el rol de la cuenta nueva.
+- **Decisión:** `InvitationCode.roleId` (obligatorio) contiene el rol a asignar: el administrador lo elige al generar el código (panel de la fase 3) y el registro lo aplica de forma atómica junto con el consumo del código.
+- **Consecuencias:** No hay cuentas "sin rol" ni pasos extra posteriores; el administrador conserva el control total de quién entra y como qué. El registro reutiliza el mensaje de error genérico para códigos inválidos y específicos para expirado/revocado.

@@ -29,4 +29,12 @@ export default tseslint.config(
       'no-console': ['error', { allow: ['warn', 'error'] }],
     },
   },
+  {
+    // NestJS inyecta clases en constructores vía emitDecoratorMetadata:
+    // esos imports deben ser valores en runtime, nunca `import type`.
+    files: ['apps/api/src/**/*.ts'],
+    rules: {
+      '@typescript-eslint/consistent-type-imports': 'off',
+    },
+  },
 );

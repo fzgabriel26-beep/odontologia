@@ -27,11 +27,11 @@ docker compose -f docker/docker-compose.yml down -v
 
 ## Accesos (desarrollo)
 
-| Servicio  | URL                      | Credenciales          |
-| --------- | ------------------------ | --------------------- |
-| PostgreSQL| `localhost:5432`         | odontologia/odontologia |
-| MinIO API | `http://localhost:9000`  | minioadmin/minioadmin |
-| MinIO UI  | `http://localhost:9001`  | minioadmin/minioadmin |
+| Servicio   | URL                     | Credenciales            |
+| ---------- | ----------------------- | ----------------------- |
+| PostgreSQL | `localhost:5432`        | odontologia/odontologia |
+| MinIO API  | `http://localhost:9000` | minioadmin/minioadmin   |
+| MinIO UI   | `http://localhost:9001` | minioadmin/minioadmin   |
 
 > Credenciales exclusivas de desarrollo. En producción se usan secretos gestionados
 > por el entorno, nunca valores del repositorio.
