@@ -12,6 +12,7 @@ import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
 import { InvitationCodesModule } from './invitation-codes/invitation-codes.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { PatientsModule } from './patients/patients.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
 
@@ -31,6 +32,7 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     UsersModule,
     InvitationCodesModule,
+    PatientsModule,
     HealthModule,
   ],
   providers: [

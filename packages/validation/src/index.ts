@@ -40,3 +40,5 @@ export type {
   CreateUserInput,
   UpdateUserInput,
 } from './admin';
+export { createPatientSchema, listPatientsQuerySchema, updatePatientSchema } from './patient';
+export type { CreatePatientInput, ListPatientsQueryInput, UpdatePatientInput } from './patient';
