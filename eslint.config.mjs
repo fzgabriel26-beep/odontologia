@@ -26,6 +26,12 @@ export default tseslint.config(
       // Regla de código del SDD: sin `any` salvo casos justificados.
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/consistent-type-imports': 'error',
+      // Identificadores con prefijo '_' (parámetros de interfaz obligatorios
+      // sin uso, p. ej. put(key, data, _contentType)) no cuentan como sin uso.
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
+      ],
       'no-console': ['error', { allow: ['warn', 'error'] }],
     },
   },

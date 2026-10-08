@@ -3,7 +3,7 @@
 Software Design Document. Especificación viva del proyecto. Toda funcionalidad se
 implementa respetando este documento; los cambios de alcance se registran aquí primero.
 
-- **Versión:** 0.6 (Fase 6)
+- **Versión:** 0.7 (Fase 7)
 - **Fecha:** 2026-10-08
 - **Decisiones técnicas:** ver `docs/ADR.md`
 
@@ -189,8 +189,15 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
   `ODONTOGRAM_UPDATED`), `POST /teeth/:id/files`,
   `GET /patients/:id/odontogram.pdf`. Los eventos nunca se borran (no existe
   endpoint de DELETE).
-- **files:** `POST /patients/:id/files`, `GET /files/:id`,
-  `GET /files/:id/content`, `POST /files/:id/archive`
+- **files:** `GET /patients/:id/files` (lista sin archivados; decisión de fase 7),
+  `POST /patients/:id/files` (multipart: `file` + `kind`, `description?`,
+  `toothId?`), `POST /teeth/:id/files` (CU-10; el paciente se hereda del diente),
+  `GET /files/:id` (metadatos, incluye archivados), `GET /files/:id/content`
+  (proxy autenticado; `?disposition=attachment` fuerza descarga, por defecto
+  `inline`; audita `FILE_DOWNLOADED`), `POST /files/:id/archive` (409
+  `FILE_ARCHIVED` si ya archivado; el binario nunca se borra). Permisos
+  `files.read`/`files.write`; validación de extensión (whitelist), tamaño
+  (`MAX_UPLOAD_MB`) y magic bytes antes de persistir.
 - **appointments:** `GET /appointments?from=&to=&professionalId=`,
   `GET/POST /appointments`, `GET/PATCH /appointments/:id`,
   `POST /appointments/:id/status`, `POST /appointments/:id/signa`,
@@ -237,7 +244,7 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
 | 4   | Pacientes: CRUD, búsqueda, ficha                               | ✅ Completada (2026-10-08) |
 | 5   | Historia clínica                                               | ✅ Completada (2026-10-08) |
 | 6   | Odontograma (SVG FDI, estados, historial)                      | ✅ Completada (2026-10-08) |
-| 7   | Archivos (subida, visualización, descarga, ADR-003)            | Pendiente                  |
+| 7   | Archivos (subida, visualización, descarga, ADR-003)            | ✅ Completada (2026-10-08) |
 | 8   | Agenda y turnos (estados, señas, cancelaciones, ausencias)     | Pendiente                  |
 | 9   | Auditoría (interceptor + panel)                                | Pendiente                  |
 | 10  | PDF del odontograma (Playwright, ADR-004)                      | Pendiente                  |

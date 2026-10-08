@@ -10,12 +10,14 @@ import { SessionGuard } from './common/guards/session.guard';
 import { AuditModule } from './audit/audit.module';
 import { AuthModule } from './auth/auth.module';
 import { ClinicalRecordsModule } from './clinical-records/clinical-records.module';
+import { FilesModule } from './files/files.module';
 import { HealthModule } from './health/health.module';
 import { InvitationCodesModule } from './invitation-codes/invitation-codes.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { OdontogramModule } from './odontogram/odontogram.module';
 import { PatientsModule } from './patients/patients.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { StorageModule } from './storage/storage.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -29,11 +31,13 @@ import { UsersModule } from './users/users.module';
       ],
     }),
     PrismaModule,
+    StorageModule,
     AuditModule,
     NotificationsModule,
     OdontogramModule,
     AuthModule,
     ClinicalRecordsModule,
+    FilesModule,
     UsersModule,
     InvitationCodesModule,
     PatientsModule,

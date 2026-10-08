@@ -47,7 +47,8 @@ async function adminActor(): Promise<{ id: string; ip: string }> {
 
 /** DNI único por corrida de tests (7 u 8 dígitos). */
 function uniqueDni(offset = 0): string {
-  return String((Date.now() % 10_000_000) + offset);
+  // Siempre 7 u 8 dígitos (base en [1_000_000, 9_999_999] + desplazamiento).
+  return String((Date.now() % 9_000_000) + 1_000_000 + offset);
 }
 
 describe('PatientsService (fase 4 — pacientes)', () => {

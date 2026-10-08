@@ -8,6 +8,7 @@ import { formatDateTime } from '@/lib/admin';
 import { formatDateOnly, patientAge, patientFullName, type Patient } from '@/lib/patients';
 import { PatientForm } from '@/components/patients/patient-form';
 import { ClinicalRecords } from '@/components/patients/clinical-records';
+import { MedicalFiles } from '@/components/patients/medical-files';
 import { Odontogram } from '@/components/patients/odontogram';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -25,20 +26,23 @@ interface TabDef {
 }
 
 /**
- * Pestañas de la ficha (SDD §11). En la fase 4 solo "Datos personales" está
- * operativa; el resto se habilita en las fases siguientes.
+ * Pestañas de la ficha (SDD §11). "Datos personales", "Historia clínica",
+ * "Odontograma" y "Estudios y archivos" están operativas; "Turnos" e
+ * "Historial" se habilitan en las fases siguientes.
  */
 const TABS: TabDef[] = [
   { key: 'datos', label: 'Datos personales' },
   { key: 'historia', label: 'Historia clínica' },
   { key: 'odontograma', label: 'Odontograma' },
-  { key: 'archivos', label: 'Estudios y archivos', phase: 7 },
+  { key: 'archivos', label: 'Estudios y archivos' },
   { key: 'turnos', label: 'Turnos', phase: 8 },
   { key: 'historial', label: 'Historial', phase: 9 },
 ];
 
-const PHASE_MESSAGES: Record<Exclude<TabKey, 'datos' | 'historia' | 'odontograma'>, string> = {
-  archivos: 'El alta y visualización de estudios se habilita en la fase 7.',
+const PHASE_MESSAGES: Record<
+  Exclude<TabKey, 'datos' | 'historia' | 'odontograma' | 'archivos'>,
+  string
+> = {
   turnos: 'La agenda de turnos se habilita en la fase 8.',
   historial: 'El historial de auditoría del paciente se habilita en la fase 9.',
 };
@@ -276,11 +280,17 @@ export default function PatientFilePage() {
         <ClinicalRecords patientId={patient.id} />
       ) : activeTab === 'odontograma' ? (
         <Odontogram patientId={patient.id} />
+      ) : activeTab === 'archivos' ? (
+        <MedicalFiles patientId={patient.id} />
       ) : (
         <Card>
           <CardContent className="p-8">
             <p className="text-sm text-muted-foreground">
-              {PHASE_MESSAGES[activeTab as Exclude<TabKey, 'datos' | 'historia' | 'odontograma'>]}
+              {
+                PHASE_MESSAGES[
+                  activeTab as Exclude<TabKey, 'datos' | 'historia' | 'odontograma' | 'archivos'>
+                ]
+              }
             </p>
           </CardContent>
         </Card>

@@ -92,7 +92,7 @@ describe('Odontograma (HTTP)', () => {
       {
         firstName: 'Odontograma',
         lastName: 'HTTP',
-        dni: String((Date.now() % 10_000_000) + 300),
+        dni: String((Date.now() % 9_000_000) + 1_000_000 + 300),
       },
       { id: admin.id, ip: '127.0.0.1' },
     );

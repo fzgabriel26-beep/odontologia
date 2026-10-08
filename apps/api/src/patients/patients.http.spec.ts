@@ -20,9 +20,9 @@ if (envPath) {
   config({ path: envPath });
 }
 
-/** DNI único por corrida, con desplazamiento para no chocar con otros specs. */
+/** DNI único por corrida (siempre 7 u 8 dígitos), con desplazamiento para no chocar con otros specs. */
 function uniqueDni(offset = 0): string {
-  return String((Date.now() % 10_000_000) + offset);
+  return String((Date.now() % 9_000_000) + 1_000_000 + offset);
 }
 
 describe('Pacientes (HTTP)', () => {

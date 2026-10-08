@@ -61,7 +61,7 @@ async function createTestPatient(offset: number): Promise<string> {
     {
       firstName: 'Odonto',
       lastName: `Test${offset}`,
-      dni: String((Date.now() % 10_000_000) + offset),
+      dni: String((Date.now() % 9_000_000) + 1_000_000 + offset),
     },
     actor,
   );

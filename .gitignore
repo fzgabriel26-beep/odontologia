@@ -9,6 +9,9 @@ coverage/
 # Cliente Prisma generado (se regenera con `pnpm generate`)
 apps/api/src/generated/
 
+# Binarios de archivos médicos en desarrollo (STORAGE_DRIVER=fs)
+storage-files/
+
 # Entorno
 .env
 .env.local

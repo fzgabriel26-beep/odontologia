@@ -46,3 +46,5 @@ export { createClinicalRecordSchema, FDI_NUMBERS } from './clinical';
 export type { CreateClinicalRecordInput } from './clinical';
 export { createToothEventSchema, toothStatusSchema, updateToothSchema } from './odontogram';
 export type { CreateToothEventInput, UpdateToothInput } from './odontogram';
+export { fileKindSchema, uploadFileFieldsSchema, uploadToToothFieldsSchema } from './files';
+export type { UploadFileFieldsInput, UploadToToothFieldsInput } from './files';

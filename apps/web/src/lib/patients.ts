@@ -1,4 +1,5 @@
-import type { PatientStatus, ToothStatus, ToothType } from '@odonto/types';
+import type { FileKind, PatientStatus, ToothStatus, ToothType } from '@odonto/types';
+import { API_URL } from './api';
 
 /** Fila de paciente tal como la devuelve la API (GET /patients, sin relaciones). */
 export interface Patient {
@@ -131,4 +132,56 @@ export interface ToothEvent {
 /** "Apellido, Nombre" del autor de un evento dental. */
 export function toothEventAuthorName(author: ToothEventAuthor): string {
   return `${author.lastName}, ${author.firstName}`;
+}
+
+/* ------------------------------------------------------------------ */
+/* Archivos médicos (fase 7)                                           */
+/* ------------------------------------------------------------------ */
+
+/** Subidor de un archivo médico (visible en el listado). */
+export interface MedicalFileUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+}
+
+/** Archivo médico (GET /patients/:id/files / GET /files/:id). */
+export interface MedicalFile {
+  id: string;
+  patientId: string;
+  /** Diente asociado (null = solo paciente). */
+  toothId: string | null;
+  /** Nombre saneado para mostrar. */
+  name: string;
+  originalName: string;
+  kind: FileKind;
+  mimeType: string;
+  size: number;
+  /** Clave interna del bucket; nunca hay URL pública (proxy autenticado). */
+  storageKey: string;
+  description: string | null;
+  uploadedById: string;
+  uploadedBy: MedicalFileUser;
+  createdAt: string;
+  archivedAt: string | null;
+}
+
+/** "Apellido, Nombre" del subidor de un archivo. */
+export function fileUploaderName(user: MedicalFileUser): string {
+  return `${user.lastName}, ${user.firstName}`;
+}
+
+/** Tamaño legible: B / KB / MB (un decimal por debajo de 10). */
+export function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  const kb = bytes / 1024;
+  if (kb < 1024) return `${kb < 10 ? kb.toFixed(1) : Math.round(kb)} KB`;
+  const mb = kb / 1024;
+  return `${mb < 10 ? mb.toFixed(1) : Math.round(mb)} MB`;
+}
+
+/** URL del proxy de contenido (descarga o visualización inline). */
+export function fileContentUrl(fileId: string, disposition?: 'attachment'): string {
+  const suffix = disposition ? `?disposition=${disposition}` : '';
+  return `${API_URL}/files/${fileId}/content${suffix}`;
 }

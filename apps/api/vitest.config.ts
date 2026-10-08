@@ -10,6 +10,12 @@ export default defineConfig({
     include: ['src/**/*.spec.ts'],
     environment: 'node',
     globals: true,
+    // Un archivo a la vez: cada spec crea su AppModule con su propio pool de
+    // Prisma; en paralelo agotaban las conexiones de PostgreSQL local (hooks
+    // colgados y PrismaClientKnownRequestError en sessions.create).
+    fileParallelism: false,
+    hookTimeout: 30_000,
+    testTimeout: 15_000,
   },
   plugins: [
     swc.vite({

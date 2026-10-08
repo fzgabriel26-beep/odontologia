@@ -83,7 +83,7 @@ describe('Historia clínica (HTTP)', () => {
     const admin = await prisma.user.findUniqueOrThrow({
       where: { email: process.env.SEED_ADMIN_EMAIL ?? 'admin@consultorio.local' },
     });
-    const suffix = Date.now() % 10_000_000;
+    const suffix = (Date.now() % 9_000_000) + 1_000_000;
     const patient = await prisma.patient.create({
       data: {
         firstName: 'Clinico',
@@ -272,7 +272,7 @@ describe('Historia clínica (HTTP)', () => {
       data: {
         firstName: 'Otro',
         lastName: 'Paciente',
-        dni: String((Date.now() % 10_000_000) + 1),
+        dni: String((Date.now() % 9_000_000) + 1_000_000 + 1),
         status: 'ACTIVO',
         createdById: (await prisma.user.findFirstOrThrow({ where: { role: { key: 'ADMIN' } } })).id,
       },

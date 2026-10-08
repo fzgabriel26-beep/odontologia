@@ -20,12 +20,15 @@ Fecha en formato AAAA-MM-DD.
 - **Decisión:** Los esquemas Zod viven en `packages/validation` y se usan en React Hook Form (zodResolver) y en un pipe de NestJS. PostgreSQL mantiene constraints (unique, not null, FK).
 - **Consecuencias:** Una sola fuente de verdad por entidad; cambios de reglas se aplican en ambos lados a la vez.
 
-## ADR-003 — Proveedor de almacenamiento S3: pendiente (interfaz ya definida)
+## ADR-003 — Proveedor de almacenamiento: `StorageProvider` (FS local / S3 por env)
 
-- **Fecha:** 2026-10-07
-- **Contexto:** Los archivos médicos deben ir a object storage compatible con S3. El proveedor definitivo de producción aún no se definió.
-- **Decisión:** Se implementa un adaptador único `StorageProvider` (fase 7). En desarrollo se usa MinIO local vía Docker. El proveedor de producción (MinIO propio, AWS S3, Cloudflare R2, etc.) se definirá antes del despliegue, cambiando únicamente variables de entorno.
-- **Estado:** **PENDIENTE — requiere decisión antes de producción.**
+- **Fecha:** 2026-10-07 (actualizado 2026-10-08, fase 7)
+- **Contexto:** Los archivos médicos deben ir a object storage compatible con S3. El proveedor definitivo de producción aún no se definió y este entorno de desarrollo no tiene Docker (mismo motivo que ADR-009 para PostgreSQL).
+- **Decisión:** Adaptador único `StorageProvider` (`apps/api/src/storage/`) con dos implementaciones seleccionables por `STORAGE_DRIVER`:
+  - `fs` (default): carpeta privada local `STORAGE_FS_DIR` (fuera de `public/`, gitignored). Usada en desarrollo y tests: todo el flujo (subida, proxy de descarga, archivado) queda integración-testeado sin servicios externos.
+  - `s3`: bucket S3 compatible (MinIO, AWS S3, Cloudflare R2) con `@aws-sdk/client-s3`, configurado por `STORAGE_ENDPOINT/REGION/BUCKET/ACCESS_KEY_ID/SECRET_ACCESS_KEY/FORCE_PATH_STYLE` y testeado con el SDK espiado (sin red).
+  - El swap a producción es solo cambiar variables de entorno.
+- **Estado:** Implementado en fase 7. **El proveedor definitivo de producción sigue a definirse antes del despliegue (MinIO propio vía Docker u otro).**
 
 ## ADR-004 — Exportación a PDF del odontograma en el backend con Playwright
 
