@@ -39,7 +39,7 @@ Fecha en formato AAAA-MM-DD.
 - **Fecha:** 2026-10-07
 - **Contexto:** El MVP no debe integrar proveedores de email, pero la recuperación de contraseña necesita un medio de entrega.
 - **Decisión (elegida por el responsable):**
-  1. El administrador puede restablecer la contraseña de cualquier usuario desde el panel (acción auditada).
+  1. El administrador puede restablecer la contraseña de cualquier usuario desde el panel (`POST /users/:id/password`, auditada como `PASSWORD_RESET_BY_ADMIN`; prohibido sobre la propia cuenta — el propio perfil usará el cambio normal de contraseña).
   2. El flujo "olvidé mi contraseña" queda implementado completo detrás de una interfaz `MailProvider`. En MVP el proveedor solo registra el token de un solo uso (logs internos, sin datos clínicos); no envía correos ni usa credenciales de terceros.
 - **Consecuencias:** Al habilitar un proveedor real después, solo se implementa `MailProvider` sin tocar la lógica de autenticación.
 

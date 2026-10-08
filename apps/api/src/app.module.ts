@@ -5,12 +5,15 @@ import { ConfigModule } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { CsrfOriginGuard } from './common/guards/csrf-origin.guard';
+import { PermissionsGuard } from './common/guards/permissions.guard';
 import { SessionGuard } from './common/guards/session.guard';
 import { AuditModule } from './audit/audit.module';
 import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
+import { InvitationCodesModule } from './invitation-codes/invitation-codes.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -26,6 +29,8 @@ import { PrismaModule } from './prisma/prisma.module';
     AuditModule,
     NotificationsModule,
     AuthModule,
+    UsersModule,
+    InvitationCodesModule,
     HealthModule,
   ],
   providers: [
@@ -33,6 +38,7 @@ import { PrismaModule } from './prisma/prisma.module';
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: SessionGuard },
     { provide: APP_GUARD, useClass: CsrfOriginGuard },
+    { provide: APP_GUARD, useClass: PermissionsGuard },
   ],
 })
 export class AppModule {}

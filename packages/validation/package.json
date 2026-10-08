@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@odonto/types": "workspace:*",
     "zod": "^4.1.12"
   },
   "devDependencies": {

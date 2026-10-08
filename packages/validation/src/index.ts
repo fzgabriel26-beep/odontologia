@@ -22,3 +22,21 @@ export type {
   RegisterInput,
   ResetPasswordInput,
 } from './auth';
+export {
+  adminResetPasswordSchema,
+  changeUserRoleSchema,
+  changeUserStatusSchema,
+  createInvitationCodeSchema,
+  createUserSchema,
+  roleKeySchema,
+  updateUserSchema,
+  uuidParamSchema,
+} from './admin';
+export type {
+  AdminResetPasswordInput,
+  ChangeUserRoleInput,
+  ChangeUserStatusInput,
+  CreateInvitationCodeInput,
+  CreateUserInput,
+  UpdateUserInput,
+} from './admin';

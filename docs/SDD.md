@@ -3,7 +3,7 @@
 Software Design Document. Especificación viva del proyecto. Toda funcionalidad se
 implementa respetando este documento; los cambios de alcance se registran aquí primero.
 
-- **Versión:** 0.2 (Fase 2)
+- **Versión:** 0.3 (Fase 3)
 - **Fecha:** 2026-10-08
 - **Decisiones técnicas:** ver `docs/ADR.md`
 
@@ -160,7 +160,7 @@ Entidades: `User`, `Role`, `InvitationCode`, `Patient`, `ClinicalRecord`, `Tooth
 - Índices: `Appointment(date)`, `Appointment(patientId, date)`, `Patient.lastName`,
   `AuditLog(entityId)`, `AuditLog(userId, createdAt)`, `ToothEvent(toothId, date)`.
 
-Detalle completo de campos y relaciones: se documenta en la fase 3 (modelo de datos).
+Detalle completo de campos y relaciones: `prisma/schema.prisma` (implementado en la fase 1).
 
 ## 9. API (resumen)
 
@@ -171,7 +171,8 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
   `POST /auth/register`, `POST /auth/password/forgot`, `POST /auth/password/reset`,
   `POST /auth/password/change`
 - **users (admin):** `GET/POST /users`, `GET/PATCH /users/:id`,
-  `POST /users/:id/status`, `POST /users/:id/role`
+  `POST /users/:id/status`, `POST /users/:id/role`, `POST /users/:id/password`
+  (reset por administrador, ADR-005; prohibido sobre la propia cuenta)
 - **invitation-codes (admin):** `GET/POST /invitation-codes`,
   `POST /invitation-codes/:id/revoke`
 - **patients:** `GET /patients?query=`, `POST /patients`, `GET/PATCH /patients/:id`,
@@ -224,7 +225,7 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
 | 0   | Infraestructura: monorepo, Docker, config, CI, docs            | ✅ Completada (2026-10-07) |
 | 1   | Base de datos: schema.prisma, migración inicial, seed          | ✅ Completada (2026-10-08) |
 | 2   | Autenticación: login, sesión, rate limit, código, recuperación | ✅ Completada (2026-10-08) |
-| 3   | Usuarios: CRUD, roles, códigos de invitación (panel admin)     | Pendiente                  |
+| 3   | Usuarios: CRUD, roles, códigos de invitación (panel admin)     | ✅ Completada (2026-10-08) |
 | 4   | Pacientes: CRUD, búsqueda, ficha                               | Pendiente                  |
 | 5   | Historia clínica                                               | Pendiente                  |
 | 6   | Odontograma (SVG FDI, estados, historial)                      | Pendiente                  |
