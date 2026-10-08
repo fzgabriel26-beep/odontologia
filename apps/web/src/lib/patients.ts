@@ -1,4 +1,4 @@
-import type { PatientStatus } from '@odonto/types';
+import type { PatientStatus, ToothStatus, ToothType } from '@odonto/types';
 
 /** Fila de paciente tal como la devuelve la API (GET /patients, sin relaciones). */
 export interface Patient {
@@ -89,5 +89,46 @@ export interface ClinicalRecord {
 
 /** "Apellido, Nombre" del autor de una evolución. */
 export function clinicalAuthorName(author: ClinicalRecordAuthor): string {
+  return `${author.lastName}, ${author.firstName}`;
+}
+
+/* ------------------------------------------------------------------ */
+/* Odontograma (fase 6)                                                */
+/* ------------------------------------------------------------------ */
+
+/** Diente del odontograma (uno de los 52 FDI del paciente). */
+export interface Tooth {
+  id: string;
+  patientId: string;
+  fdiNumber: number;
+  type: ToothType;
+  currentStatus: ToothStatus;
+  observations: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Autor de un evento dental. */
+export interface ToothEventAuthor {
+  id: string;
+  firstName: string;
+  lastName: string;
+}
+
+/** Evento del historial de un diente (ineliminable). */
+export interface ToothEvent {
+  id: string;
+  toothId: string;
+  status: ToothStatus;
+  note: string | null;
+  /** Fecha date-only en ISO (aaaa-mm-ddT00:00:00.000Z). */
+  eventDate: string;
+  createdById: string;
+  createdBy: ToothEventAuthor;
+  createdAt: string;
+}
+
+/** "Apellido, Nombre" del autor de un evento dental. */
+export function toothEventAuthorName(author: ToothEventAuthor): string {
   return `${author.lastName}, ${author.firstName}`;
 }

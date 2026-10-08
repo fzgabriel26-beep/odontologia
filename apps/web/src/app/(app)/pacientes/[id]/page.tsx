@@ -8,6 +8,7 @@ import { formatDateTime } from '@/lib/admin';
 import { formatDateOnly, patientAge, patientFullName, type Patient } from '@/lib/patients';
 import { PatientForm } from '@/components/patients/patient-form';
 import { ClinicalRecords } from '@/components/patients/clinical-records';
+import { Odontogram } from '@/components/patients/odontogram';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -30,14 +31,13 @@ interface TabDef {
 const TABS: TabDef[] = [
   { key: 'datos', label: 'Datos personales' },
   { key: 'historia', label: 'Historia clínica' },
-  { key: 'odontograma', label: 'Odontograma', phase: 6 },
+  { key: 'odontograma', label: 'Odontograma' },
   { key: 'archivos', label: 'Estudios y archivos', phase: 7 },
   { key: 'turnos', label: 'Turnos', phase: 8 },
   { key: 'historial', label: 'Historial', phase: 9 },
 ];
 
-const PHASE_MESSAGES: Record<Exclude<TabKey, 'datos' | 'historia'>, string> = {
-  odontograma: 'El odontograma interactivo se habilita en la fase 6.',
+const PHASE_MESSAGES: Record<Exclude<TabKey, 'datos' | 'historia' | 'odontograma'>, string> = {
   archivos: 'El alta y visualización de estudios se habilita en la fase 7.',
   turnos: 'La agenda de turnos se habilita en la fase 8.',
   historial: 'El historial de auditoría del paciente se habilita en la fase 9.',
@@ -274,11 +274,13 @@ export default function PatientFilePage() {
         )
       ) : activeTab === 'historia' ? (
         <ClinicalRecords patientId={patient.id} />
+      ) : activeTab === 'odontograma' ? (
+        <Odontogram patientId={patient.id} />
       ) : (
         <Card>
           <CardContent className="p-8">
             <p className="text-sm text-muted-foreground">
-              {PHASE_MESSAGES[activeTab as Exclude<TabKey, 'datos' | 'historia'>]}
+              {PHASE_MESSAGES[activeTab as Exclude<TabKey, 'datos' | 'historia' | 'odontograma'>]}
             </p>
           </CardContent>
         </Card>

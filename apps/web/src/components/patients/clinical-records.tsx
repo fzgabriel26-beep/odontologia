@@ -22,14 +22,19 @@ function toServerMessage(error: unknown): string {
 
 function applyFieldErrors(
   error: unknown,
-  setError: (key: keyof CreateClinicalRecordInput, error: { message: string }) => void,
+  setError: (key: keyof CreateClinicalRecordInput | 'root', error: { message: string }) => void,
 ): boolean {
   if (!(error instanceof ApiError) || !error.fields) return false;
   for (const [key, message] of Object.entries(error.fields)) {
     // Los errores de campo del backend pueden venir como "toothNumbers.0"; el
-    // formulario muestra el del campo raíz.
-    const rootKey = key.split('.')[0] as keyof CreateClinicalRecordInput;
-    setError(rootKey, { message });
+    // formulario muestra el del campo raíz. 'form' (validación del objeto
+    // completo) va a la raíz del formulario (errors.root).
+    const rootKey = key.split('.')[0];
+    if (rootKey === 'form') {
+      setError('root', { message });
+    } else {
+      setError(rootKey as keyof CreateClinicalRecordInput, { message });
+    }
   }
   return true;
 }
@@ -116,6 +121,13 @@ function ClinicalRecordForm({
     </div>
   );
 
+  // Errores de nivel formulario: raíz (mapeo del servidor) o la clave 'form'
+  // del resolver Zod (refine del objeto completo); sin esto el botón quedaba
+  // bloqueado sin mensaje visible.
+  const formError =
+    errors.root?.message ??
+    (errors as unknown as Record<string, { message?: string } | undefined>).form?.message;
+
   return (
     <Card>
       <CardHeader>
@@ -123,9 +135,9 @@ function ClinicalRecordForm({
       </CardHeader>
       <CardContent>
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
-          {serverError ? (
+          {serverError || formError ? (
             <Alert variant="destructive">
-              <AlertDescription>{serverError}</AlertDescription>
+              <AlertDescription>{serverError ?? formError}</AlertDescription>
             </Alert>
           ) : null}
 

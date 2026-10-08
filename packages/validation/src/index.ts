@@ -44,3 +44,5 @@ export { createPatientSchema, listPatientsQuerySchema, updatePatientSchema } fro
 export type { CreatePatientInput, ListPatientsQueryInput, UpdatePatientInput } from './patient';
 export { createClinicalRecordSchema, FDI_NUMBERS } from './clinical';
 export type { CreateClinicalRecordInput } from './clinical';
+export { createToothEventSchema, toothStatusSchema, updateToothSchema } from './odontogram';
+export type { CreateToothEventInput, UpdateToothInput } from './odontogram';

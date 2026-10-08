@@ -13,6 +13,7 @@ import { ClinicalRecordsModule } from './clinical-records/clinical-records.modul
 import { HealthModule } from './health/health.module';
 import { InvitationCodesModule } from './invitation-codes/invitation-codes.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { OdontogramModule } from './odontogram/odontogram.module';
 import { PatientsModule } from './patients/patients.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
@@ -30,6 +31,7 @@ import { UsersModule } from './users/users.module';
     PrismaModule,
     AuditModule,
     NotificationsModule,
+    OdontogramModule,
     AuthModule,
     ClinicalRecordsModule,
     UsersModule,

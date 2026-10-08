@@ -21,11 +21,17 @@ function toServerMessage(error: unknown): string {
 /** Rellena los errores por campo si el backend los devolvió (la validación Zod corre también acá). */
 function applyFieldErrors(
   error: unknown,
-  setError: (key: keyof CreatePatientInput, error: { message: string }) => void,
+  setError: (key: keyof CreatePatientInput | 'root', error: { message: string }) => void,
 ): boolean {
   if (!(error instanceof ApiError) || !error.fields) return false;
   for (const [key, message] of Object.entries(error.fields)) {
-    setError(key as keyof CreatePatientInput, { message });
+    // 'form' (validación del objeto completo) va a la raíz del formulario.
+    const rootKey = key.split('.')[0];
+    if (rootKey === 'form') {
+      setError('root', { message });
+    } else {
+      setError(rootKey as keyof CreatePatientInput, { message });
+    }
   }
   return true;
 }
@@ -119,6 +125,12 @@ export function PatientForm({ patient, onCancel, onSaved }: PatientFormProps) {
     </div>
   );
 
+  // Errores de nivel formulario (raíz del resolver o 'form' del servidor):
+  // sin mostrarlos el envío quedaba bloqueado sin mensaje visible.
+  const formError =
+    errors.root?.message ??
+    (errors as unknown as Record<string, { message?: string } | undefined>).form?.message;
+
   return (
     <Card>
       <CardHeader>
@@ -128,9 +140,9 @@ export function PatientForm({ patient, onCancel, onSaved }: PatientFormProps) {
       </CardHeader>
       <CardContent>
         <form onSubmit={onSubmit} className="space-y-6" noValidate>
-          {serverError ? (
+          {serverError || formError ? (
             <Alert variant="destructive">
-              <AlertDescription>{serverError}</AlertDescription>
+              <AlertDescription>{serverError ?? formError}</AlertDescription>
             </Alert>
           ) : null}
 

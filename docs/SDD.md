@@ -3,7 +3,7 @@
 Software Design Document. Especificación viva del proyecto. Toda funcionalidad se
 implementa respetando este documento; los cambios de alcance se registran aquí primero.
 
-- **Versión:** 0.5 (Fase 5)
+- **Versión:** 0.6 (Fase 6)
 - **Fecha:** 2026-10-08
 - **Decisiones técnicas:** ver `docs/ADR.md`
 
@@ -181,9 +181,14 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
 - **clinical-records:** `GET/POST /patients/:id/records`,
   `POST /patients/:id/records/:recordId/archive` (la lista GET excluye las
   archivadas; nunca hay borrado físico)
-- **odontogram:** `GET /patients/:id/teeth`, `GET /teeth/:id/events`,
-  `POST /teeth/:id/events`, `POST /teeth/:id/files`,
-  `GET /patients/:id/odontogram.pdf`
+- **odontogram:** `GET /patients/:id/teeth` (los 52 dientes FDI ordenados por
+  número), `GET /teeth/:id/events` (historial, más recientes primero, con autor),
+  `POST /teeth/:id/events` (crea el evento **y** actualiza `currentStatus` del
+  diente en la misma transacción; auditoría `TOOTH_EVENT_CREATED` +
+  `ODONTOGRAM_UPDATED`), `PATCH /teeth/:id` (observaciones del diente, auditado
+  `ODONTOGRAM_UPDATED`), `POST /teeth/:id/files`,
+  `GET /patients/:id/odontogram.pdf`. Los eventos nunca se borran (no existe
+  endpoint de DELETE).
 - **files:** `POST /patients/:id/files`, `GET /files/:id`,
   `GET /files/:id/content`, `POST /files/:id/archive`
 - **appointments:** `GET /appointments?from=&to=&professionalId=`,
@@ -231,7 +236,7 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
 | 3   | Usuarios: CRUD, roles, códigos de invitación (panel admin)     | ✅ Completada (2026-10-08) |
 | 4   | Pacientes: CRUD, búsqueda, ficha                               | ✅ Completada (2026-10-08) |
 | 5   | Historia clínica                                               | ✅ Completada (2026-10-08) |
-| 6   | Odontograma (SVG FDI, estados, historial)                      | Pendiente                  |
+| 6   | Odontograma (SVG FDI, estados, historial)                      | ✅ Completada (2026-10-08) |
 | 7   | Archivos (subida, visualización, descarga, ADR-003)            | Pendiente                  |
 | 8   | Agenda y turnos (estados, señas, cancelaciones, ausencias)     | Pendiente                  |
 | 9   | Auditoría (interceptor + panel)                                | Pendiente                  |
