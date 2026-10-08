@@ -1,12 +1,13 @@
 import './common/config/env';
 import { Module } from '@nestjs/common';
-import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { CsrfOriginGuard } from './common/guards/csrf-origin.guard';
 import { PermissionsGuard } from './common/guards/permissions.guard';
 import { SessionGuard } from './common/guards/session.guard';
+import { AuditInterceptor } from './audit/audit.interceptor';
 import { AuditModule } from './audit/audit.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { AuthModule } from './auth/auth.module';
@@ -51,6 +52,9 @@ import { UsersModule } from './users/users.module';
     { provide: APP_GUARD, useClass: SessionGuard },
     { provide: APP_GUARD, useClass: CsrfOriginGuard },
     { provide: APP_GUARD, useClass: PermissionsGuard },
+    // Red de seguridad de auditoría (fase 9): toda mutación sin auditoría
+    // de dominio deja una fila API_MUTATION. Ver ADR-014.
+    { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
   ],
 })
 export class AppModule {}

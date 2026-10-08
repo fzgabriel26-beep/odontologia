@@ -68,3 +68,5 @@ export type {
   RegisterSignaInput,
   UpdateAppointmentInput,
 } from './appointments';
+export { auditQuerySchema } from './audit';
+export type { AuditQueryInput } from './audit';

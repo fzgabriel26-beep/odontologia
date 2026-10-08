@@ -3,7 +3,7 @@
 Software Design Document. Especificación viva del proyecto. Toda funcionalidad se
 implementa respetando este documento; los cambios de alcance se registran aquí primero.
 
-- **Versión:** 0.8 (Fase 8)
+- **Versión:** 0.9 (Fase 9)
 - **Fecha:** 2026-10-08
 - **Decisiones técnicas:** ver `docs/ADR.md`
 
@@ -217,7 +217,16 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
   reciente primero). Permisos `appointments.read`/`appointments.write`. Los
   turnos nunca se borran: estados cerrados ATENDIDO/CANCELADO/AUSENTE/
   REPROGRAMADO sin salidas.
-- **audit (admin):** `GET /audit?action=&userId=&from=&to=`
+- **audit (fase 9, admin):** `GET /audit?action=&userId=&patientId=&from=&to=&limit=&offset=`
+  (CU-15; permiso `audit.read`, solo ADMIN). Filtros combinados (AND): acción
+  (enum `AUDIT_ACTIONS`), usuario, paciente — incluye tanto las filas
+  `entityType=PATIENT` como las que llevan `metadata.patientId`
+  (evoluciones, odontograma, archivos, turnos) — y rango de fechas
+  `from`/`to` (día completo en UTC). Paginación `limit` (1–500, por defecto
+  50) + `offset`, orden `createdAt` descendente, con el nombre del autor.
+  Solo lectura: no existe ningún POST/PATCH/DELETE (insert-only). Además,
+  el `AuditInterceptor` global (ADR-014) escribe una fila `API_MUTATION`
+  cuando una mutación HTTP exitosa no dejó auditoría de dominio.
 
 ## 10. Seguridad
 
@@ -229,7 +238,9 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
 - Archivos: bucket privado, descarga por proxy autenticado, validación de extensión +
   MIME real (magic bytes) + tamaño, nombre sanitizado, `storageKey` del servidor.
 - XSS: React + CSP; CSRF: SameSite + token doble submit; SQLi: Prisma parametrizado.
-- Auditoría insert-only de todas las acciones sensibles listadas en el SDD original.
+- Auditoría insert-only de todas las acciones sensibles listadas en el SDD original,
+  con interceptor global de red de seguridad (`API_MUTATION`, ADR-014): ninguna
+  mutación exitosa queda sin registrar.
 - Privacidad (Ley 25.326 Argentina y datos de salud): controles técnicos implementados;
   el cumplimiento legal debe ser revisado por el responsable del consultorio y asesoría
   legal (conservación, derechos ARCO, registro de bases). **No se afirma cumplimiento
@@ -249,7 +260,11 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
   registro/anulación de seña, historial de estados y badge de seña pendiente.
   Las vistas semana/mes de §2.1 quedan pendientes de confirmación de alcance.
 - Ficha del paciente: pestañas Datos personales · Historia clínica · Odontograma ·
-  Estudios/Archivos · Turnos · Historial.
+  Estudios/Archivos · Turnos · Historial (auditoría del paciente desde la fase 9;
+  requiere `audit.read`, el resto del personal ve un mensaje de permiso).
+- Auditoría (fase 9): página `/auditoria` con filtros por acción, usuario y rango
+  de fechas, listado con autor/fecha/IP, detalles de metadatos plegables y
+  paginación "Cargar más". Visible en la navegación lateral solo con `audit.read`.
 - Todo el texto en español.
 
 ## 12. Plan de implementación (fases)
@@ -265,7 +280,7 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
 | 6   | Odontograma (SVG FDI, estados, historial)                      | ✅ Completada (2026-10-08) |
 | 7   | Archivos (subida, visualización, descarga, ADR-003)            | ✅ Completada (2026-10-08) |
 | 8   | Agenda y turnos (estados, señas, cancelaciones, ausencias)     | ✅ Completada (2026-10-08) |
-| 9   | Auditoría (interceptor + panel)                                | Pendiente                  |
+| 9   | Auditoría (interceptor + panel)                                | ✅ Completada (2026-10-08) |
 | 10  | PDF del odontograma (Playwright, ADR-004)                      | Pendiente                  |
 | 11  | Aplicación de escritorio (Tauri)                               | Pendiente                  |
 | 12  | E2E, hardening, backups/restauración                           | Pendiente                  |

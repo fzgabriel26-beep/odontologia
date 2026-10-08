@@ -11,6 +11,8 @@ import { ClinicalRecords } from '@/components/patients/clinical-records';
 import { MedicalFiles } from '@/components/patients/medical-files';
 import { Odontogram } from '@/components/patients/odontogram';
 import { PatientAppointments } from '@/components/agenda/patient-appointments';
+import { PatientHistory } from '@/components/audit/patient-history';
+import { useAppSession } from '@/components/app-session';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -22,14 +24,11 @@ type TabKey = 'datos' | 'historia' | 'odontograma' | 'archivos' | 'turnos' | 'hi
 interface TabDef {
   key: TabKey;
   label: string;
-  /** Fase en la que se habilita (null = disponible ahora). */
-  phase?: number;
 }
 
 /**
- * Pestañas de la ficha (SDD §11). "Datos personales", "Historia clínica",
- * "Odontograma", "Estudios y archivos" y "Turnos" están operativas;
- * "Historial" se habilita en la fase 9.
+ * Pestañas de la ficha (SDD §11): todas operativas desde la fase 9.
+ * "Historial" muestra la auditoría del paciente (requiere audit.read).
  */
 const TABS: TabDef[] = [
   { key: 'datos', label: 'Datos personales' },
@@ -37,12 +36,8 @@ const TABS: TabDef[] = [
   { key: 'odontograma', label: 'Odontograma' },
   { key: 'archivos', label: 'Estudios y archivos' },
   { key: 'turnos', label: 'Turnos' },
-  { key: 'historial', label: 'Historial', phase: 9 },
+  { key: 'historial', label: 'Historial' },
 ];
-
-const PHASE_MESSAGES: Record<'historial', string> = {
-  historial: 'El historial de auditoría del paciente se habilita en la fase 9.',
-};
 
 function DataField({ label, value }: { label: string; value: string | null | undefined }) {
   return (
@@ -55,11 +50,13 @@ function DataField({ label, value }: { label: string; value: string | null | und
 
 /**
  * Ficha del paciente (SDD, fase 4): datos personales con edición inline,
- * estado (activo/archivado) y placeholder de las pestañas de las próximas fases.
+ * estado (activo/archivado) y pestañas clínicas (historia, odontograma,
+ * archivos, turnos e historial de auditoría desde la fase 9).
  */
 export default function PatientFilePage() {
   const params = useParams<{ id: string }>();
   const patientId = params.id;
+  const { can } = useAppSession();
 
   const [patient, setPatient] = useState<Patient | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -281,13 +278,20 @@ export default function PatientFilePage() {
         <MedicalFiles patientId={patient.id} />
       ) : activeTab === 'turnos' ? (
         <PatientAppointments patient={patient} />
-      ) : (
-        <Card>
-          <CardContent className="p-8">
-            <p className="text-sm text-muted-foreground">{PHASE_MESSAGES[activeTab]}</p>
-          </CardContent>
-        </Card>
-      )}
+      ) : activeTab === 'historial' ? (
+        can('audit.read') ? (
+          <PatientHistory patientId={patient.id} />
+        ) : (
+          <Card>
+            <CardContent className="p-8">
+              <p className="text-sm text-muted-foreground">
+                El historial de auditoría requiere el permiso &quot;audit.read&quot; (solo
+                administradores).
+              </p>
+            </CardContent>
+          </Card>
+        )
+      ) : null}
 
       <ConfirmDialog
         open={archiveTarget !== null}

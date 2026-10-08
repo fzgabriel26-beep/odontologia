@@ -249,8 +249,58 @@ export const AUDIT_ACTIONS = [
   'USER_ROLE_CHANGED',
   'INVITATION_CODE_CREATED',
   'INVITATION_CODE_REVOKED',
+  // Fila que escribe el interceptor (fase 9) cuando una mutación exitosa no
+  // dejó auditoría de dominio: red de seguridad, no reemplaza lo explícito.
+  'API_MUTATION',
 ] as const;
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
+
+/** Etiquetas en español de cada acción de auditoría (panel y ficha del paciente). */
+export const AUDIT_ACTION_LABELS: Record<AuditAction, string> = {
+  LOGIN: 'Inicio de sesión',
+  LOGOUT: 'Cierre de sesión',
+  LOGIN_FAILED: 'Inicio de sesión fallido',
+  PASSWORD_RESET_REQUESTED: 'Recuperación de contraseña solicitada',
+  PASSWORD_RESET_COMPLETED: 'Recuperación de contraseña completada',
+  PASSWORD_RESET_BY_ADMIN: 'Contraseña restablecida por administrador',
+  PASSWORD_CHANGED: 'Contraseña cambiada',
+  PATIENT_CREATED: 'Paciente creado',
+  PATIENT_UPDATED: 'Paciente actualizado',
+  PATIENT_ARCHIVED: 'Ficha de paciente archivada',
+  CLINICAL_RECORD_CREATED: 'Registro clínico creado',
+  CLINICAL_RECORD_ARCHIVED: 'Registro clínico archivado',
+  ODONTOGRAM_UPDATED: 'Odontograma actualizado',
+  TOOTH_EVENT_CREATED: 'Evento de diente registrado',
+  FILE_UPLOADED: 'Archivo médico subido',
+  FILE_DOWNLOADED: 'Archivo médico descargado',
+  FILE_ARCHIVED: 'Archivo médico archivado',
+  APPOINTMENT_CREATED: 'Turno creado',
+  APPOINTMENT_UPDATED: 'Turno actualizado',
+  APPOINTMENT_STATUS_CHANGED: 'Estado de turno cambiado',
+  APPOINTMENT_CANCELLED: 'Turno cancelado',
+  APPOINTMENT_ABSENT_REGISTERED: 'Ausencia registrada',
+  SIGNA_REGISTERED: 'Seña registrada',
+  USER_CREATED: 'Usuario creado',
+  USER_UPDATED: 'Usuario actualizado',
+  USER_STATUS_CHANGED: 'Estado de usuario cambiado',
+  USER_ROLE_CHANGED: 'Rol de usuario cambiado',
+  INVITATION_CODE_CREATED: 'Código de invitación creado',
+  INVITATION_CODE_REVOKED: 'Código de invitación revocado',
+  API_MUTATION: 'Mutación sin registrar (interceptor)',
+};
+
+/** Etiquetas en español de las entidades registradas en `AuditLog.entityType`. */
+export const AUDIT_ENTITY_LABELS: Record<string, string> = {
+  PATIENT: 'Paciente',
+  CLINICAL_RECORD: 'Registro clínico',
+  TOOTH: 'Diente',
+  TOOTH_EVENT: 'Evento de diente',
+  MEDICAL_FILE: 'Archivo médico',
+  APPOINTMENT: 'Turno',
+  USER: 'Usuario',
+  INVITATION_CODE: 'Código de invitación',
+  API: 'API',
+};
 
 /**
  * Usuario autenticado que devuelve la API en /auth/login, /auth/me y /auth/register.

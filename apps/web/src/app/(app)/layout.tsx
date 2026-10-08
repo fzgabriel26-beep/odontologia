@@ -22,6 +22,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/agenda', label: 'Agenda', permission: 'appointments.read' },
   { href: '/pacientes', label: 'Pacientes', permission: 'patients.read' },
+  { href: '/auditoria', label: 'Auditoría', permission: 'audit.read' },
   { href: '/usuarios', label: 'Usuarios', permission: 'users.manage' },
   { href: '/codigos', label: 'Códigos de invitación', permission: 'invitation.manage' },
 ];

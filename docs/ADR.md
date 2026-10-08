@@ -107,3 +107,10 @@ Fecha en formato AAAA-MM-DD.
 - **Contexto:** El registro es solo por código de invitación y toda cuenta necesita un rol; el SDD no especifica quién decide el rol de la cuenta nueva.
 - **Decisión:** `InvitationCode.roleId` (obligatorio) contiene el rol a asignar: el administrador lo elige al generar el código (panel de la fase 3) y el registro lo aplica de forma atómica junto con el consumo del código.
 - **Consecuencias:** No hay cuentas "sin rol" ni pasos extra posteriores; el administrador conserva el control total de quién entra y como qué. El registro reutiliza el mensaje de error genérico para códigos inválidos y específicos para expirado/revocado.
+
+## ADR-014 — Interceptor de auditoría como red de seguridad (AsyncLocalStorage)
+
+- **Fecha:** 2026-10-08
+- **Contexto:** Todas las mutaciones HTTP actuales auditan con acciones de dominio (`PATIENT_UPDATED`, `APPOINTMENT_CREATED`, …), pero un endpoint futuro podría olvidar el `audit.log` y quedar sin registrar. Repetir la auditoría en el interceptor duplicaría cada fila.
+- **Decisión:** `AuditInterceptor` global (APP_INTERCEPTOR) que, solo para `POST/PUT/PATCH/DELETE` con respuesta 2xx, comprueba vía `AsyncLocalStorage` (`audit-context.ts`) si el handler ya dejó una fila (`AuditService.log` lo marca). Si no la dejó, escribe una fila `API_MUTATION` (`entityType: API`, metadata `method` + `path` sin query) **antes** de emitir la respuesta. Los errores no generan fila (los fallos relevantes como `LOGIN_FAILED` ya auditan explícitamente) y las lecturas no se interceptan.
+- **Consecuencias:** Ninguna mutación exitosa queda sin registrar y no hay filas duplicadas; el coste es un `AsyncLocalStorage` en el camino de toda request mutante y una fila de respaldo de baja semántica (`API_MUTATION`) que en la práctica solo aparece si alguien agrega un endpoint sin auditoría. El panel la muestra con etiqueta "Mutación sin registrar (interceptor)".
