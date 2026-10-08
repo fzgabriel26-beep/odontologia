@@ -3,6 +3,7 @@
 import {
   PERMANENT_TEETH_FDI,
   TEMPORARY_TEETH_FDI,
+  TOOTH_STATUS_COLORS,
   TOOTH_STATUS_LABELS,
   TOOTH_STATUSES,
   type ToothStatus,
@@ -28,23 +29,7 @@ const LOWER_PERMANENT = PERMANENT_TEETH_FDI.slice(16);
 const UPPER_TEMPORARY = TEMPORARY_TEETH_FDI.slice(0, 10);
 const LOWER_TEMPORARY = TEMPORARY_TEETH_FDI.slice(10);
 
-/** Fondo por estado (pastel: el texto y el glifo siempre legibles encima). */
-export const TOOTH_STATUS_COLORS: Record<ToothStatus, string> = {
-  SANO: '#dcfce7',
-  CARIES: '#fecaca',
-  RESTAURACION: '#bfdbfe',
-  CORONA: '#fde68a',
-  AUSENTE: '#e5e7eb',
-  EXTRACCION_INDICADA: '#fed7aa',
-  EXTRACCION_REALIZADA: '#d1d5db',
-  ENDODONCIA: '#ddd6fe',
-  IMPLANTE: '#cbd5e1',
-  PROTESIS: '#a5f3fc',
-  FRACTURA: '#fecdd3',
-  RETENIDO: '#eaddcf',
-  TRATAMIENTO_PENDIENTE: '#fef9c3',
-  OTRO: '#f3f4f6',
-};
+/** Los colores por estado viven en @odonto/types (compartidos con el PDF). */
 
 /** Glifo del estado en una caja 14×14 (patrón/icono, complemento del color). */
 function StatusGlyph({ status }: { status: ToothStatus }) {

@@ -81,3 +81,47 @@ export async function fetchMe(): Promise<SessionUser | null> {
     return null;
   }
 }
+
+export interface DownloadedFile {
+  blob: Blob;
+  /** Nombre sugerido desde Content-Disposition, o null si no viene expuesto. */
+  filename: string | null;
+}
+
+function filenameFromDisposition(header: string | null): string | null {
+  if (!header) return null;
+  return /filename="([^"]+)"/.exec(header)?.[1] ?? null;
+}
+
+/**
+ * Descarga binaria autenticada (PDF del odontograma, etc.): igual que
+ * apiFetch pero devuelve el blob, y los errores JSON se normalizan a ApiError
+ * en lugar de abrir una pestaña con la respuesta cruda.
+ */
+export async function apiDownload(path: string): Promise<DownloadedFile> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, { credentials: 'include' });
+  } catch {
+    throw new ApiError(
+      0,
+      'NETWORK_ERROR',
+      'No se pudo conectar con el servidor. Intentá nuevamente.',
+    );
+  }
+
+  if (!response.ok) {
+    const data = (await response.json().catch(() => null)) as ApiErrorBody | null;
+    throw new ApiError(
+      response.status,
+      data?.error?.code ?? 'HTTP_ERROR',
+      data?.error?.message ?? 'No fue posible procesar la solicitud.',
+      data?.error?.fields,
+    );
+  }
+
+  return {
+    blob: await response.blob(),
+    filename: filenameFromDisposition(response.headers.get('Content-Disposition')),
+  };
+}

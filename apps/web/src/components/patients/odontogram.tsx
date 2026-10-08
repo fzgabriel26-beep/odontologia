@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { createToothEventSchema, type CreateToothEventInput } from '@odonto/validation';
-import { ApiError, apiFetch } from '@/lib/api';
+import { ApiError, apiDownload, apiFetch } from '@/lib/api';
 import { formatDateOnly, toothEventAuthorName, type Tooth, type ToothEvent } from '@/lib/patients';
 import {
   OdontogramLegend,
@@ -289,6 +289,8 @@ export function Odontogram({ patientId }: { patientId: string }) {
   const [events, setEvents] = useState<ToothEvent[] | null>(null);
   const [eventsError, setEventsError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [exportingPdf, setExportingPdf] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
 
   const selected = teeth?.find((tooth) => tooth.id === selectedId) ?? null;
 
@@ -339,6 +341,30 @@ export function Odontogram({ patientId }: { patientId: string }) {
     await loadTeeth();
   }, [loadTeeth]);
 
+  /** Exporta el PDF en el backend (ADR-004) y lo descarga con nombre sugerido. */
+  const handleExportPdf = useCallback(async () => {
+    setExportingPdf(true);
+    setPdfError(null);
+    try {
+      const { blob, filename } = await apiDownload(`/patients/${patientId}/odontogram.pdf`);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename ?? 'odontograma.pdf';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      // Se libera después de iniciar la descarga (algunos navegadores lo
+      // necesitan; si el componente se desmonta, el timeout igual se cumple).
+      window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
+      setNotice('PDF del odontograma generado y descargado.');
+    } catch (error) {
+      setPdfError(toServerMessage(error));
+    } finally {
+      setExportingPdf(false);
+    }
+  }, [patientId]);
+
   return (
     <div className="space-y-4">
       {notice ? (
@@ -354,14 +380,35 @@ export function Odontogram({ patientId }: { patientId: string }) {
         </Alert>
       ) : null}
 
+      {pdfError ? (
+        <Alert variant="destructive">
+          <AlertTitle>No se pudo exportar</AlertTitle>
+          <AlertDescription>{pdfError}</AlertDescription>
+        </Alert>
+      ) : null}
+
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
         <Card>
-          <CardHeader>
-            <CardTitle>Odontograma FDI</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Hacé clic en un diente (o usá Tab + Enter) para ver su estado, observaciones e
-              historial.
-            </p>
+          <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
+            <div className="space-y-1.5">
+              <CardTitle>Odontograma FDI</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Hacé clic en un diente (o usá Tab + Enter) para ver su estado, observaciones e
+                historial.
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setNotice(null);
+                void handleExportPdf();
+              }}
+              disabled={exportingPdf}
+            >
+              {exportingPdf ? 'Generando PDF…' : 'Exportar PDF'}
+            </Button>
           </CardHeader>
           <CardContent className="space-y-4">
             {teeth === null && !loadError ? (

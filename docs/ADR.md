@@ -36,6 +36,12 @@ Fecha en formato AAAA-MM-DD.
 - **Contexto:** El PDF debe ser consistente entre web y escritorio, con encabezado del consultorio, datos del paciente, odontograma FDI, estados y leyenda.
 - **Decisión:** El backend renderiza una vista HTML (con el SVG del odontograma) y la convierte a PDF con Playwright. El frontend solo solicita el endpoint.
 - **Consecuencias:** Mismo resultado en ambas versiones, sin depender del navegador del usuario; Playwright ya es dependencia del stack (tests e2e).
+- **Actualización (fase 10):** si el Chromium de Playwright no está instalado
+  (`playwright install chromium`), el servicio intenta en secuencia el Chrome y
+  el Edge del sistema (`channel: 'chrome' | 'msedge'`); si no hay ningún
+  navegador responde `503 PDF_UNAVAILABLE`. El navegador vive en un singleton
+  que se cierra con el módulo. La exportación audita `ODONTOGRAM_PDF_EXPORTED`
+  (entidad `PATIENT`) por exponer información clínica.
 
 ## ADR-005 — Recuperación de contraseña sin proveedor de email en el MVP
 

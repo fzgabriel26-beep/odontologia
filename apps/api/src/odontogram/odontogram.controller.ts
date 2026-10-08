@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Param, Patch, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  Res,
+} from '@nestjs/common';
+import type { ServerResponse } from 'node:http';
 import type { CreateToothEventInput, UpdateToothInput } from '@odonto/validation';
 import { createToothEventSchema, updateToothSchema } from '@odonto/validation';
 import { CurrentUser, type AuthUser } from '../common/decorators/current-user.decorator';
@@ -6,6 +16,7 @@ import { RequirePermission } from '../common/decorators/require-permission.decor
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import type { Tooth } from '../generated/prisma/client';
+import { OdontogramPdfService } from './odontogram-pdf.service';
 import {
   OdontogramService,
   type OdontogramActor,
@@ -28,11 +39,41 @@ function actorOf(user: AuthUser, req: RequestWithIp): OdontogramActor {
 @Controller()
 @RequirePermission('odontogram.read')
 export class OdontogramController {
-  constructor(private readonly odontogramService: OdontogramService) {}
+  constructor(
+    private readonly odontogramService: OdontogramService,
+    private readonly pdfService: OdontogramPdfService,
+  ) {}
 
   @Get('patients/:id/teeth')
   listTeeth(@Param('id', UuidParamPipe) id: string): Promise<Tooth[]> {
     return this.odontogramService.listTeeth(id);
+  }
+
+  /**
+   * Exportación a PDF (CU-11 / ADR-004 / fase 10): el backend renderiza el
+   * odontograma con Playwright y el cliente solo descarga el binario, siempre
+   * con sesión y permiso (mismo proxy autenticado que los archivos médicos).
+   */
+  @Get('patients/:id/odontogram.pdf')
+  async exportPdf(
+    @Param('id', UuidParamPipe) id: string,
+    @CurrentUser() user: AuthUser,
+    @Req() req: RequestWithIp,
+    @Res() res: ServerResponse,
+  ): Promise<void> {
+    const { buffer, filename } = await this.pdfService.exportPdf(id, {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      ip: req.ip,
+    });
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Length', String(buffer.byteLength));
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Cache-Control', 'private, no-store');
+    res.end(buffer);
   }
 
   @Get('teeth/:id/events')

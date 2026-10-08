@@ -9,6 +9,8 @@ async function bootstrap(): Promise<void> {
   app.enableCors({
     origin: process.env.WEB_ORIGIN ?? 'http://localhost:3000',
     credentials: true,
+    // Para que el front pueda leer el nombre del archivo (PDF del odontograma).
+    exposedHeaders: ['Content-Disposition'],
   });
 
   const port = Number(process.env.API_PORT ?? 3001);

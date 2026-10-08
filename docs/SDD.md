@@ -3,7 +3,7 @@
 Software Design Document. Especificación viva del proyecto. Toda funcionalidad se
 implementa respetando este documento; los cambios de alcance se registran aquí primero.
 
-- **Versión:** 0.9 (Fase 9)
+- **Versión:** 0.10 (Fase 10)
 - **Fecha:** 2026-10-08
 - **Decisiones técnicas:** ver `docs/ADR.md`
 
@@ -187,8 +187,9 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
   diente en la misma transacción; auditoría `TOOTH_EVENT_CREATED` +
   `ODONTOGRAM_UPDATED`), `PATCH /teeth/:id` (observaciones del diente, auditado
   `ODONTOGRAM_UPDATED`), `POST /teeth/:id/files`,
-  `GET /patients/:id/odontogram.pdf`. Los eventos nunca se borran (no existe
-  endpoint de DELETE).
+  `GET /patients/:id/odontogram.pdf` (exportación a PDF con Playwright, CU-11 /
+  fase 10: requiere `odontogram.read` y audita `ODONTOGRAM_PDF_EXPORTED`).
+  Los eventos nunca se borran (no existe endpoint de DELETE).
 - **files:** `GET /patients/:id/files` (lista sin archivados; decisión de fase 7),
   `POST /patients/:id/files` (multipart: `file` + `kind`, `description?`,
   `toothId?`), `POST /teeth/:id/files` (CU-10; el paciente se hereda del diente),
@@ -281,7 +282,7 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
 | 7   | Archivos (subida, visualización, descarga, ADR-003)            | ✅ Completada (2026-10-08) |
 | 8   | Agenda y turnos (estados, señas, cancelaciones, ausencias)     | ✅ Completada (2026-10-08) |
 | 9   | Auditoría (interceptor + panel)                                | ✅ Completada (2026-10-08) |
-| 10  | PDF del odontograma (Playwright, ADR-004)                      | Pendiente                  |
+| 10  | PDF del odontograma (Playwright, ADR-004)                      | ✅ Completada (2026-10-08) |
 | 11  | Aplicación de escritorio (Tauri)                               | Pendiente                  |
 | 12  | E2E, hardening, backups/restauración                           | Pendiente                  |
 

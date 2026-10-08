@@ -169,6 +169,28 @@ export const TOOTH_STATUS_LABELS: Record<ToothStatus, string> = {
   OTRO: 'Otro',
 };
 
+/**
+ * Fondo por estado dental (pastel: el texto y el glifo siempre legibles
+ * encima). Compartida por el SVG web y el PDF del backend para que el color
+ * sea idéntico en ambas vistas.
+ */
+export const TOOTH_STATUS_COLORS: Record<ToothStatus, string> = {
+  SANO: '#dcfce7',
+  CARIES: '#fecaca',
+  RESTAURACION: '#bfdbfe',
+  CORONA: '#fde68a',
+  AUSENTE: '#e5e7eb',
+  EXTRACCION_INDICADA: '#fed7aa',
+  EXTRACCION_REALIZADA: '#d1d5db',
+  ENDODONCIA: '#ddd6fe',
+  IMPLANTE: '#cbd5e1',
+  PROTESIS: '#a5f3fc',
+  FRACTURA: '#fecdd3',
+  RETENIDO: '#eaddcf',
+  TRATAMIENTO_PENDIENTE: '#fef9c3',
+  OTRO: '#f3f4f6',
+};
+
 /** Numeración FDI de dientes permanentes (por cuadrante). */
 export const PERMANENT_TEETH_FDI: readonly number[] = [
   18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28, 48, 47, 46, 45, 44, 43, 42, 41,
@@ -233,6 +255,7 @@ export const AUDIT_ACTIONS = [
   'CLINICAL_RECORD_CREATED',
   'CLINICAL_RECORD_ARCHIVED',
   'ODONTOGRAM_UPDATED',
+  'ODONTOGRAM_PDF_EXPORTED',
   'TOOTH_EVENT_CREATED',
   'FILE_UPLOADED',
   'FILE_DOWNLOADED',
@@ -270,6 +293,7 @@ export const AUDIT_ACTION_LABELS: Record<AuditAction, string> = {
   CLINICAL_RECORD_CREATED: 'Registro clínico creado',
   CLINICAL_RECORD_ARCHIVED: 'Registro clínico archivado',
   ODONTOGRAM_UPDATED: 'Odontograma actualizado',
+  ODONTOGRAM_PDF_EXPORTED: 'Odontograma exportado a PDF',
   TOOTH_EVENT_CREATED: 'Evento de diente registrado',
   FILE_UPLOADED: 'Archivo médico subido',
   FILE_DOWNLOADED: 'Archivo médico descargado',
