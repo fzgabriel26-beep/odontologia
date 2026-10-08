@@ -1,0 +1,11 @@
+{
+  "name": "@odonto/config",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Presets de TypeScript compartidos del monorepo",
+  "exports": {
+    "./tsconfig/react.json": "./tsconfig/react.json",
+    "./tsconfig/nest.json": "./tsconfig/nest.json",
+    "./tsconfig/node.json": "./tsconfig/node.json"
+  }
+}

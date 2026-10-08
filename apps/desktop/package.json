@@ -1,0 +1,9 @@
+{
+  "name": "@odonto/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Aplicación de escritorio (Tauri) — wrapper de apps/web. El scaffold se crea en la fase 11.",
+  "scripts": {
+    "typecheck": "echo \"(desktop) scaffold Tauri en la fase 11\""
+  }
+}

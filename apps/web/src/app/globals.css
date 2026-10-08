@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+/* Los componentes de @odonto/ui viven fuera de apps/web: indicar a Tailwind
+   dónde buscar clases para que sus estilos se generen. */
+@source "../../../../packages/ui/src";
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-neutral-50 text-neutral-900 antialiased;
+}

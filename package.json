@@ -1,0 +1,28 @@
+{
+  "name": "odontologia",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sistema de gestión odontológica (web + escritorio) sobre monorepo Turborepo/pnpm",
+  "packageManager": "pnpm@12.10.1",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "typecheck": "turbo typecheck",
+    "lint": "eslint .",
+    "test": "turbo test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "eslint": "^9.39.0",
+    "globals": "^16.5.0",
+    "prettier": "^3.6.2",
+    "turbo": "^2.5.0",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.46.0"
+  }
+}
