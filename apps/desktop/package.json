@@ -2,8 +2,16 @@
   "name": "@odonto/desktop",
   "version": "0.1.0",
   "private": true,
-  "description": "Aplicación de escritorio (Tauri) — wrapper de apps/web. El scaffold se crea en la fase 11.",
+  "description": "Aplicación de escritorio (Tauri) — wrapper de apps/web sobre el mismo backend (fase 11).",
   "scripts": {
-    "typecheck": "echo \"(desktop) scaffold Tauri en la fase 11\""
+    "typecheck": "echo \"(desktop) verificado con check:rust (cargo check)\"",
+    "check:rust": "cargo check --manifest-path src-tauri/Cargo.toml",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "e2e": "node scripts/e2e-desktop.mjs"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.12.1",
+    "playwright": "^1.63.0"
   }
 }

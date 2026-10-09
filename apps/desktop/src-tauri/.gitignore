@@ -1,0 +1,2 @@
+# Artefactos de compilación de Rust (se generan en cada build).
+target/

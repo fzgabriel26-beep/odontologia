@@ -19,6 +19,7 @@ import { AuditService } from '../audit/audit.service';
 import { MAIL_PROVIDER, type MailProvider } from '../notifications/mail.provider';
 import { PrismaService } from '../prisma/prisma.service';
 import { SessionsService, type SessionContext } from './sessions.service';
+import { primaryWebOrigin } from '../common/utils/origins';
 
 const GENERIC_LOGIN_ERROR = 'Email o contraseña incorrectos.';
 
@@ -298,7 +299,7 @@ export class AuthService {
       }),
     ]);
 
-    const webOrigin = process.env.WEB_ORIGIN ?? 'http://localhost:3000';
+    const webOrigin = primaryWebOrigin();
     await this.mail.send({
       to: user.email,
       subject: 'Restablecer tu contraseña',

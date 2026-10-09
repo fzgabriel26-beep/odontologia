@@ -11,6 +11,7 @@ export default tseslint.config(
       '**/.turbo/**',
       // Archivos generados por Next.js
       '**/next-env.d.ts',
+      '**/apps/web/out/**',
       // Cliente Prisma generado
       '**/src/generated/**',
       'apps/desktop/src-tauri/**',

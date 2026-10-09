@@ -181,9 +181,7 @@ export interface AppointmentListParams {
   status?: AppointmentStatus;
 }
 
-export async function listAppointments(
-  params: AppointmentListParams = {},
-): Promise<Appointment[]> {
+export async function listAppointments(params: AppointmentListParams = {}): Promise<Appointment[]> {
   const search = new URLSearchParams();
   if (params.from !== undefined) search.set('from', params.from);
   if (params.to !== undefined) search.set('to', params.to);
@@ -207,10 +205,7 @@ export function createAppointment(body: CreateAppointmentInput): Promise<Appoint
   return apiFetch<Appointment>('/appointments', { method: 'POST', body });
 }
 
-export function updateAppointment(
-  id: string,
-  body: UpdateAppointmentInput,
-): Promise<Appointment> {
+export function updateAppointment(id: string, body: UpdateAppointmentInput): Promise<Appointment> {
   return apiFetch<Appointment>(`/appointments/${id}`, { method: 'PATCH', body });
 }
 

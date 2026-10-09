@@ -146,12 +146,7 @@ const LOWER_PERMANENT = PERMANENT_TEETH_FDI.slice(16);
 const UPPER_TEMPORARY = TEMPORARY_TEETH_FDI.slice(0, 10);
 const LOWER_TEMPORARY = TEMPORARY_TEETH_FDI.slice(10);
 
-function toothCellSvg(
-  fdi: number,
-  x: number,
-  y: number,
-  status: string | null,
-): string {
+function toothCellSvg(fdi: number, x: number, y: number, status: string | null): string {
   const label = statusLabel(status);
   return [
     `<g transform="translate(${x},${y})">`,
@@ -170,7 +165,9 @@ function rowSvg(
   byFdi: Map<number, PdfTooth>,
 ): string {
   const cells = numbers
-    .map((fdi, index) => toothCellSvg(fdi, x0 + index * STEP, y, byFdi.get(fdi)?.currentStatus ?? null))
+    .map((fdi, index) =>
+      toothCellSvg(fdi, x0 + index * STEP, y, byFdi.get(fdi)?.currentStatus ?? null),
+    )
     .join('');
   return (
     `<line x1="${MID_X}" y1="${y}" x2="${MID_X}" y2="${y + CELL}" stroke="#cbd5e1" stroke-dasharray="3 3"/>` +

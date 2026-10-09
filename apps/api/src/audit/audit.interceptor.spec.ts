@@ -92,7 +92,10 @@ describe('AuditInterceptor (HTTP)', () => {
 
     // La fila debe existir antes de responder (el interceptor espera la escritura).
     const row = await prisma.auditLog.findFirst({
-      where: { action: 'API_MUTATION', metadata: { path: ['path'], equals: '/probe-audit/silent' } },
+      where: {
+        action: 'API_MUTATION',
+        metadata: { path: ['path'], equals: '/probe-audit/silent' },
+      },
       orderBy: { createdAt: 'desc' },
     });
     expect(row).not.toBeNull();
@@ -115,7 +118,10 @@ describe('AuditInterceptor (HTTP)', () => {
     expect(explicit).not.toBeNull(); // la auditoría explícita sí quedó
 
     const fallback = await prisma.auditLog.findFirst({
-      where: { action: 'API_MUTATION', metadata: { path: ['path'], equals: '/probe-audit/logged' } },
+      where: {
+        action: 'API_MUTATION',
+        metadata: { path: ['path'], equals: '/probe-audit/logged' },
+      },
     });
     expect(fallback).toBeNull(); // y el interceptor no agregó su fila
   });

@@ -2,10 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  PAYMENT_METHODS,
-  type PaymentMethod,
-} from '@odonto/types';
+import { PAYMENT_METHODS, type PaymentMethod } from '@odonto/types';
 import {
   changeAppointmentStatusSchema,
   registerSignaSchema,
@@ -126,11 +123,7 @@ export function StatusChangeDialog({
 
           <div className="space-y-2">
             <Label htmlFor="status-next">Nuevo estado</Label>
-            <NativeSelect
-              id="status-next"
-              invalid={Boolean(errors.status)}
-              {...register('status')}
-            >
+            <NativeSelect id="status-next" invalid={Boolean(errors.status)} {...register('status')}>
               {options.map((option) => (
                 <option key={option} value={option}>
                   {appointmentStatusLabel(option)}
@@ -141,9 +134,7 @@ export function StatusChangeDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="status-reason">
-              Motivo{reasonRequired ? '' : ' (opcional)'}
-            </Label>
+            <Label htmlFor="status-reason">Motivo{reasonRequired ? '' : ' (opcional)'}</Label>
             <Textarea
               id="status-reason"
               placeholder={
@@ -218,10 +209,9 @@ export function SignaDialog({
     } catch (error) {
       if (error instanceof ApiError && error.fields) {
         for (const [key, message] of Object.entries(error.fields)) {
-          setError(
-            (key === 'form' ? 'root' : key) as 'root' | keyof RegisterSignaInput,
-            { message },
-          );
+          setError((key === 'form' ? 'root' : key) as 'root' | keyof RegisterSignaInput, {
+            message,
+          });
         }
         return;
       }
@@ -253,12 +243,7 @@ export function SignaDialog({
           ) : null}
 
           <div className="flex items-center gap-2">
-            <Input
-              id="signa-paid"
-              type="checkbox"
-              className="h-4 w-4"
-              {...register('signaPaid')}
-            />
+            <Input id="signa-paid" type="checkbox" className="h-4 w-4" {...register('signaPaid')} />
             <Label htmlFor="signa-paid" className="mb-0">
               Seña abonada
             </Label>
@@ -276,9 +261,7 @@ export function SignaDialog({
                   className={errors.signaReceived ? 'border-destructive' : undefined}
                   {...register('signaReceived', {
                     setValueAs: (value) =>
-                      value === '' || value === null || value === undefined
-                        ? null
-                        : Number(value),
+                      value === '' || value === null || value === undefined ? null : Number(value),
                   })}
                 />
                 <FieldError message={errors.signaReceived?.message} />
@@ -407,9 +390,7 @@ export function HistoryDialog({
                   </span>
                 </div>
                 {event.reason !== null ? (
-                  <p className="mt-1 whitespace-pre-wrap text-sm">
-                    Motivo: {event.reason}
-                  </p>
+                  <p className="mt-1 whitespace-pre-wrap text-sm">Motivo: {event.reason}</p>
                 ) : null}
               </li>
             ))}

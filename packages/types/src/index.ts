@@ -115,10 +115,7 @@ export const APPOINTMENT_CLOSED_STATUSES: readonly AppointmentStatus[] = [
 ];
 
 /** ¿La transición from → to está permitida? (La autoridad final es el backend.) */
-export function canTransitionAppointment(
-  from: AppointmentStatus,
-  to: AppointmentStatus,
-): boolean {
+export function canTransitionAppointment(from: AppointmentStatus, to: AppointmentStatus): boolean {
   return APPOINTMENT_TRANSITIONS[from].includes(to);
 }
 

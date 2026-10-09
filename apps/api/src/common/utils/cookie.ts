@@ -1,3 +1,5 @@
+import { isDesktopOrigin } from './origins';
+
 /** Cookie de sesión (httpOnly). El frontend nunca puede leerla. */
 export const SESSION_COOKIE = 'odon_session';
 
@@ -15,20 +17,52 @@ export interface CookieResponse {
   clearCookie(name: string, options?: CookieOptions): unknown;
 }
 
-export function setSessionCookie(res: CookieResponse, token: string, expiresAt: Date): void {
+export interface SessionCookieContext {
+  /** Cabecera `Origin` de la petición (ausente en clientes no navegador). */
+  origin?: string;
+}
+
+/**
+ * Atributos de la cookie de sesión según el origen que hizo el login:
+ *
+ * - Web (`localhost:3000`): `SameSite=Lax` — primer pilar del control CSRF
+ *   (ADR-012); el refuerzo es el `CsrfOriginGuard`.
+ * - Escritorio Tauri (`tauri.localhost`): origen cross-site con `localhost`,
+ *   así que `SameSite=Lax` impediría enviar la cookie. Se usa
+ *   `SameSite=None; Secure` (ADR-015). `Secure` es válido sobre
+ *   `http://localhost` (origen confiable del navegador).
+ */
+function sessionCookieAttributes(context: SessionCookieContext): {
+  sameSite: 'lax' | 'none';
+  secure: boolean;
+} {
+  if (isDesktopOrigin(context.origin)) {
+    return { sameSite: 'none', secure: true };
+  }
+  return { sameSite: 'lax', secure: process.env.NODE_ENV === 'production' };
+}
+
+export function setSessionCookie(
+  res: CookieResponse,
+  token: string,
+  expiresAt: Date,
+  context: SessionCookieContext = {},
+): void {
   res.cookie(SESSION_COOKIE, token, {
     httpOnly: true,
-    // Control CSRF del lado del servidor (ADR-012): SameSite=Lax impide que
-    // sitios de terceros envíen requests mutantes con la cookie adjunta.
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
+    ...sessionCookieAttributes(context),
     path: '/',
     expires: expiresAt,
   });
 }
 
-export function clearSessionCookie(res: CookieResponse): void {
-  res.clearCookie(SESSION_COOKIE, { path: '/' });
+export function clearSessionCookie(res: CookieResponse, context: SessionCookieContext = {}): void {
+  // Se repiten los atributos para borrar exactamente la variante que
+  // quedó guardada en el jar del navegador (web o escritorio).
+  res.clearCookie(SESSION_COOKIE, {
+    ...sessionCookieAttributes(context),
+    path: '/',
+  });
 }
 
 /** Lee una cookie del header `Cookie` sin depender de middleware externo. */

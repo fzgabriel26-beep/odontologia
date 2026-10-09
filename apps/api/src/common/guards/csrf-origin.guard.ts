@@ -1,5 +1,6 @@
 import type { CanActivate, ExecutionContext } from '@nestjs/common';
 import { ForbiddenException, Injectable } from '@nestjs/common';
+import { webOrigins } from '../utils/origins';
 
 const MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
@@ -13,8 +14,9 @@ function normalizeOrigin(value: string): string {
  * 1. Las cookies de sesión son SameSite=Lax, por lo que un sitio de terceros
  *    no puede enviarlas en requests mutantes.
  * 2. Como refuerzo, se valida la cabecera Origin en todo request mutante:
- *    solo se acepta el origen del frontend (WEB_ORIGIN), orígenes extra
- *    configurados (CSRF_ORIGINS) o el mismo host de la API.
+ *    solo se aceptan los orígenes de `WEB_ORIGIN` (web y escritorio Tauri,
+ *    lista separada por coma — ADR-015), los orígenes extra configurados
+ *    (CSRF_ORIGINS) o el mismo host de la API.
  * 3. Requests sin Origin (clientes no-browser: curl, tests, Swagger CLI)
  *    no están sujetos a esta validación.
  */
@@ -31,8 +33,7 @@ export class CsrfOriginGuard implements CanActivate {
     const origin = request.headers.origin;
     if (!origin) return true;
 
-    const allowed = new Set<string>();
-    if (process.env.WEB_ORIGIN) allowed.add(normalizeOrigin(process.env.WEB_ORIGIN));
+    const allowed = new Set<string>(webOrigins());
     for (const extra of (process.env.CSRF_ORIGINS ?? '').split(',')) {
       if (extra.trim()) allowed.add(normalizeOrigin(extra.trim()));
     }

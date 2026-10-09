@@ -13,8 +13,8 @@ export default function AuditPage() {
       <header className="space-y-1">
         <h1 className="text-lg font-semibold">Auditoría</h1>
         <p className="text-sm text-muted-foreground">
-          Registro inmutable de las acciones sensibles del sistema: quién hizo qué y cuándo.
-          Los registros nunca se modifican ni se eliminan.
+          Registro inmutable de las acciones sensibles del sistema: quién hizo qué y cuándo. Los
+          registros nunca se modifican ni se eliminan.
         </p>
       </header>
       <AuditPanel />

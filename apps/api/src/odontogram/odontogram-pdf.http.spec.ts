@@ -150,44 +150,40 @@ describe('PDF del odontograma (HTTP)', () => {
     expect(response.body.error.code).toBe('UNAUTHORIZED');
   });
 
-  it(
-    'genera el PDF con sesión: %PDF, descarga, sin cache y auditoría del paciente',
-    async () => {
-      const response = await request(app.getHttpServer())
-        .get(`/patients/${patientId}/odontogram.pdf`)
-        .set('Cookie', staffCookie)
-        .buffer(true)
-        .parse(binaryParser)
-        .expect(200);
+  it('genera el PDF con sesión: %PDF, descarga, sin cache y auditoría del paciente', async () => {
+    const response = await request(app.getHttpServer())
+      .get(`/patients/${patientId}/odontogram.pdf`)
+      .set('Cookie', staffCookie)
+      .buffer(true)
+      .parse(binaryParser)
+      .expect(200);
 
-      // Encabezados de descarga.
-      expect(response.headers['content-type']).toBe('application/pdf');
-      const disposition = response.headers['content-disposition'] as string;
-      expect(disposition).toMatch(/^attachment; filename="odontograma-pdf-test-\d+\.pdf"$/);
-      expect(response.headers['x-content-type-options']).toBe('nosniff');
-      expect(response.headers['cache-control']).toBe('private, no-store');
+    // Encabezados de descarga.
+    expect(response.headers['content-type']).toBe('application/pdf');
+    const disposition = response.headers['content-disposition'] as string;
+    expect(disposition).toMatch(/^attachment; filename="odontograma-pdf-test-\d+\.pdf"$/);
+    expect(response.headers['x-content-type-options']).toBe('nosniff');
+    expect(response.headers['cache-control']).toBe('private, no-store');
 
-      // Binario PDF real, generado por Playwright.
-      const body = response.body as Buffer;
-      expect(Buffer.isBuffer(body)).toBe(true);
-      expect(body.byteLength).toBeGreaterThan(2_000);
-      expect(body.subarray(0, 5).toString('latin1')).toBe('%PDF-');
-      expect(body.subarray(-16).toString('latin1')).toContain('%%EOF');
+    // Binario PDF real, generado por Playwright.
+    const body = response.body as Buffer;
+    expect(Buffer.isBuffer(body)).toBe(true);
+    expect(body.byteLength).toBeGreaterThan(2_000);
+    expect(body.subarray(0, 5).toString('latin1')).toBe('%PDF-');
+    expect(body.subarray(-16).toString('latin1')).toContain('%%EOF');
 
-      // Auditoría de acceso a información clínica (visible en la ficha).
-      const entry = await prisma.auditLog.findFirst({
-        where: {
-          action: 'ODONTOGRAM_PDF_EXPORTED',
-          entityType: 'PATIENT',
-          entityId: patientId,
-          userId: staffId,
-        },
-      });
-      expect(entry).not.toBeNull();
-      expect(entry?.metadata).toMatchObject({ patientId });
-    },
-    60_000,
-  );
+    // Auditoría de acceso a información clínica (visible en la ficha).
+    const entry = await prisma.auditLog.findFirst({
+      where: {
+        action: 'ODONTOGRAM_PDF_EXPORTED',
+        entityType: 'PATIENT',
+        entityId: patientId,
+        userId: staffId,
+      },
+    });
+    expect(entry).not.toBeNull();
+    expect(entry?.metadata).toMatchObject({ patientId });
+  }, 60_000);
 
   it('rechaza con 403 al usuario sin permisos de odontograma', async () => {
     const response = await request(app.getHttpServer())

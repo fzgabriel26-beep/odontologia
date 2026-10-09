@@ -160,7 +160,7 @@ export default function PatientsPage() {
                   <tr key={row.id} className="border-b last:border-b-0">
                     <td className="px-4 py-3">
                       <Link
-                        href={`/pacientes/${row.id}`}
+                        href={`/pacientes/ficha?id=${row.id}`}
                         className="font-medium underline-offset-4 hover:underline"
                       >
                         {patientFullName(row)}
@@ -184,7 +184,7 @@ export default function PatientsPage() {
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-2">
                         <Button variant="ghost" size="sm" asChild>
-                          <Link href={`/pacientes/${row.id}`}>Ver ficha</Link>
+                          <Link href={`/pacientes/ficha?id=${row.id}`}>Ver ficha</Link>
                         </Button>
                         <Button
                           variant={row.status === 'ACTIVO' ? 'outline' : 'ghost'}

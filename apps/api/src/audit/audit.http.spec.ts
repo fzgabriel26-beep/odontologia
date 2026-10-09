@@ -144,11 +144,11 @@ describe('Auditoría (HTTP)', () => {
   }
 
   async function getAudit(query: string, cookie: string = adminCookie): Promise<AuditRow[]> {
-    const response = await request(app.getHttpServer())
-      .get(`/audit${query}`)
-      .set('Cookie', cookie);
+    const response = await request(app.getHttpServer()).get(`/audit${query}`).set('Cookie', cookie);
     if (response.status !== 200) {
-      throw new Error(`GET /audit${query} respondió ${response.status}: ${JSON.stringify(response.body)}`);
+      throw new Error(
+        `GET /audit${query} respondió ${response.status}: ${JSON.stringify(response.body)}`,
+      );
     }
     return response.body as AuditRow[];
   }

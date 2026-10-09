@@ -1,8 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { ApiError, apiFetch } from '@/lib/api';
 import { formatDateTime } from '@/lib/admin';
 import { formatDateOnly, patientAge, patientFullName, type Patient } from '@/lib/patients';
@@ -52,10 +52,22 @@ function DataField({ label, value }: { label: string; value: string | null | und
  * Ficha del paciente (SDD, fase 4): datos personales con edición inline,
  * estado (activo/archivado) y pestañas clínicas (historia, odontograma,
  * archivos, turnos e historial de auditoría desde la fase 9).
+ *
+ * El paciente se identifica por query param (`/pacientes/ficha?id=...`) en
+ * lugar de ruta dinámica, para que el bundle estático del escritorio Tauri
+ * pueda exportarlo (ADR-015).
  */
 export default function PatientFilePage() {
-  const params = useParams<{ id: string }>();
-  const patientId = params.id;
+  return (
+    <Suspense fallback={<p className="text-sm text-muted-foreground">Cargando ficha…</p>}>
+      <PatientFileContent />
+    </Suspense>
+  );
+}
+
+function PatientFileContent() {
+  const searchParams = useSearchParams();
+  const patientId = searchParams.get('id');
   const { can } = useAppSession();
 
   const [patient, setPatient] = useState<Patient | null>(null);
@@ -66,6 +78,7 @@ export default function PatientFilePage() {
   const [archiveTarget, setArchiveTarget] = useState<Patient | null>(null);
 
   const load = useCallback(async () => {
+    if (!patientId) return;
     try {
       const data = await apiFetch<Patient>(`/patients/${patientId}`);
       setPatient(data);
@@ -94,6 +107,21 @@ export default function PatientFilePage() {
     setEditing(false);
     await load();
   };
+
+  if (!patientId) {
+    return (
+      <div className="mx-auto w-full max-w-4xl space-y-4">
+        <Alert variant="destructive">
+          <AlertDescription>
+            La dirección de la ficha no incluye el paciente (?id=...). Volvé a la lista y elegí uno.
+          </AlertDescription>
+        </Alert>
+        <Button variant="outline" asChild>
+          <Link href="/pacientes">Volver a pacientes</Link>
+        </Button>
+      </div>
+    );
+  }
 
   if (loadError && !patient) {
     return (

@@ -50,7 +50,9 @@ function AuditEntryRow({ entry }: { entry: AuditEntry }) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone={auditActionTone(entry.action)}>{auditActionLabel(entry.action)}</Badge>
-          <span className="text-xs text-muted-foreground">{auditEntityLabel(entry.entityType)}</span>
+          <span className="text-xs text-muted-foreground">
+            {auditEntityLabel(entry.entityType)}
+          </span>
         </div>
         <span className="text-xs text-muted-foreground">{formatDateTime(entry.createdAt)}</span>
       </div>
@@ -119,9 +121,7 @@ export function AuditList({ params }: { params: AuditListParams }) {
       setLastBatchSize(next.length);
     } catch (caught) {
       setError(
-        caught instanceof ApiError
-          ? caught.message
-          : 'No se pudieron cargar más registros.',
+        caught instanceof ApiError ? caught.message : 'No se pudieron cargar más registros.',
       );
     } finally {
       setLoadingMore(false);
@@ -141,7 +141,9 @@ export function AuditList({ params }: { params: AuditListParams }) {
   }
 
   if (entries.length === 0) {
-    return <p className="text-sm text-muted-foreground">Sin registros para los filtros indicados.</p>;
+    return (
+      <p className="text-sm text-muted-foreground">Sin registros para los filtros indicados.</p>
+    );
   }
 
   return (

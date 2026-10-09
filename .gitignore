@@ -25,6 +25,7 @@ storage-files/
 
 # Tauri
 apps/desktop/src-tauri/target/
+apps/desktop/src-tauri/gen/
 
 # Logs
 *.log

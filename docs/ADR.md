@@ -106,6 +106,7 @@ Fecha en formato AAAA-MM-DD.
   1. La cookie de sesión se emite con `SameSite=Lax` + `httpOnly` (y `secure` en producción), de modo que un navegador no adjunta la cookie en requests mutantes cruzados.
   2. `CsrfOriginGuard` rechaza con `403 CSRF_ORIGIN_REJECTED` todo `POST/PUT/PATCH/DELETE` cuya cabecera `Origin` no coincida con `WEB_ORIGIN`, `CSRF_ORIGINS` ni el host de la API. Requests sin `Origin` (clientes no navegador) no se validan.
 - **Consecuencias:** Sin tokens CSRF ni cambios en el frontend; los E2E y `curl` siguen funcionando. Si algún día el frontend se sirve de otro origen, se agrega a `CSRF_ORIGINS`.
+- **Enmienda (fase 11, ADR-015):** `WEB_ORIGIN` es ahora una lista separada por coma (incluye `http://tauri.localhost`) y el login desde la webview de escritorio emite la cookie con `SameSite=None; Secure` (origen cross-site). Web conserva `SameSite=Lax`; el `CsrfOriginGuard` no cambia.
 
 ## ADR-013 — El código de invitación define el rol que recibirá la cuenta
 
@@ -120,3 +121,15 @@ Fecha en formato AAAA-MM-DD.
 - **Contexto:** Todas las mutaciones HTTP actuales auditan con acciones de dominio (`PATIENT_UPDATED`, `APPOINTMENT_CREATED`, …), pero un endpoint futuro podría olvidar el `audit.log` y quedar sin registrar. Repetir la auditoría en el interceptor duplicaría cada fila.
 - **Decisión:** `AuditInterceptor` global (APP_INTERCEPTOR) que, solo para `POST/PUT/PATCH/DELETE` con respuesta 2xx, comprueba vía `AsyncLocalStorage` (`audit-context.ts`) si el handler ya dejó una fila (`AuditService.log` lo marca). Si no la dejó, escribe una fila `API_MUTATION` (`entityType: API`, metadata `method` + `path` sin query) **antes** de emitir la respuesta. Los errores no generan fila (los fallos relevantes como `LOGIN_FAILED` ya auditan explícitamente) y las lecturas no se interceptan.
 - **Consecuencias:** Ninguna mutación exitosa queda sin registrar y no hay filas duplicadas; el coste es un `AsyncLocalStorage` en el camino de toda request mutante y una fila de respaldo de baja semántica (`API_MUTATION`) que en la práctica solo aparece si alguien agrega un endpoint sin auditoría. El panel la muestra con etiqueta "Mutación sin registrar (interceptor)".
+
+## ADR-015 — Escritorio Tauri: bundle estático, origen `tauri.localhost` y cookie de sesión
+
+- **Fecha:** 2026-10-08
+- **Contexto:** El MVP exige una app de escritorio sobre la misma web y el mismo backend. La webview de Tauri en Windows sirve los archivos bajo `http://tauri.localhost` (custom protocol de WebView2), no puede ejecutar un servidor Next en producción, y ese origen resultó ser _cross-site_ con `localhost` (verificado empíricamente en la fase 11: con `SameSite=Lax` la cookie no viajaba y `/auth/me` respondía 401).
+- **Decisión:**
+  1. **Entrega:** `apps/web` se exporta como sitio estático (`output: 'export'` + `trailingSlash: true`) a `apps/web/out`, que es el `frontendDist` de Tauri; en desarrollo, `tauri dev` usa `devUrl: http://localhost:3000` con `beforeDevCommand: scripts/dev-web.mjs` (reutiliza un web ya corriendo en :3000 o lo levanta).
+  2. **Ruta de la ficha:** `/pacientes/[id]` pasó a `/pacientes/ficha?id=...` — era la única ruta dinámica que impedía el export y solo había que ajustar 2 links.
+  3. **Orígenes:** `WEB_ORIGIN` es una lista separada por coma (web primero, `http://tauri.localhost` después). CORS (`corsOptions()`), `CsrfOriginGuard` y los enlaces de recuperación de contraseña (primer origen) comparten `common/utils/origins.ts`.
+  4. **Cookie de sesión:** login con Origin de escritorio ⇒ `SameSite=None; Secure` (`Secure` es válido sobre `http://localhost`, origen confiable); web ⇒ `SameSite=Lax` sin cambios (ADR-012) y el `CsrfOriginGuard` sigue validando toda mutación en el backend.
+  5. **CSP:** `script-src 'self' 'unsafe-inline'` porque el export de Next embebe el payload RSC en scripts inline (necesario para hidratar); `connect-src`/`img-src` permiten `http://localhost:3001` y `https:` (producción con API en HTTPS, SDD §7).
+- **Consecuencias:** El `.exe` funciona sin servidor web (solo requiere la API). Los scripts del escritorio (`tauri:dev`, `tauri:build`) están deliberadamente fuera de `turbo dev`/`turbo build`: compilar Rust no es requisito para desarrollar web/API y `pnpm dev` no debe abrir ventanas ni pelear por el puerto 3000. Requieren toolchain Rust (rustup) + VS Build Tools. El trade-off de `script-src 'unsafe-inline'` se acepta porque la app no renderiza HTML de usuario y los archivos clínicos se entregan como blob/descarga; convendrá reforzar si algún día se inyecta HTML externo.

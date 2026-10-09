@@ -45,9 +45,7 @@ export function AgendaBoard() {
       setAppointments(list);
       setLoadError(null);
     } catch (error) {
-      setLoadError(
-        error instanceof ApiError ? error.message : 'No se pudieron cargar los turnos.',
-      );
+      setLoadError(error instanceof ApiError ? error.message : 'No se pudieron cargar los turnos.');
     }
   }, [date, professionalId]);
 
@@ -98,12 +96,7 @@ export function AgendaBoard() {
               >
                 ◀
               </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setDate(todayIso())}
-              >
+              <Button type="button" variant="outline" size="sm" onClick={() => setDate(todayIso())}>
                 Hoy
               </Button>
               <Button

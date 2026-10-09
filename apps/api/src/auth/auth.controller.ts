@@ -27,7 +27,7 @@ import {
 import { AuthService, type AuthResult } from './auth.service';
 
 interface RequestWithUser {
-  headers: { cookie?: string; 'user-agent'?: string };
+  headers: { cookie?: string; 'user-agent'?: string; origin?: string };
   ip?: string;
   user?: AuthUser;
 }
@@ -36,8 +36,12 @@ function contextOf(req: RequestWithUser): { ip?: string; userAgent?: string } {
   return { ip: req.ip, userAgent: req.headers['user-agent'] };
 }
 
-function respondWithSession(res: CookieResponse, result: AuthResult): { user: AuthResult['user'] } {
-  setSessionCookie(res, result.token, result.expiresAt);
+function respondWithSession(
+  res: CookieResponse,
+  result: AuthResult,
+  req: RequestWithUser,
+): { user: AuthResult['user'] } {
+  setSessionCookie(res, result.token, result.expiresAt, { origin: req.headers.origin });
   return { user: result.user };
 }
 
@@ -59,7 +63,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: CookieResponse,
   ): Promise<{ user: AuthResult['user'] }> {
     const result = await this.authService.login(body, contextOf(req));
-    return respondWithSession(res, result);
+    return respondWithSession(res, result, req);
   }
 
   @AuthRateLimit()
@@ -72,7 +76,7 @@ export class AuthController {
     const token = readCookie(req.headers.cookie, SESSION_COOKIE);
     // El SessionGuard garantiza req.user en rutas no públicas.
     await this.authService.logout(token, req.user, contextOf(req));
-    clearSessionCookie(res);
+    clearSessionCookie(res, { origin: req.headers.origin });
     return { ok: true };
   }
 
@@ -92,7 +96,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: CookieResponse,
   ): Promise<{ user: AuthResult['user'] }> {
     const result = await this.authService.register(body, contextOf(req));
-    return respondWithSession(res, result);
+    return respondWithSession(res, result, req);
   }
 
   @Public()

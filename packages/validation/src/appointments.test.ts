@@ -65,7 +65,9 @@ describe('createAppointmentSchema', () => {
   });
 
   it('valida la duración (entera, entre 5 y 480 minutos)', () => {
-    expect(createAppointmentSchema.safeParse({ ...baseCreate, durationMin: 4 }).success).toBe(false);
+    expect(createAppointmentSchema.safeParse({ ...baseCreate, durationMin: 4 }).success).toBe(
+      false,
+    );
     expect(createAppointmentSchema.safeParse({ ...baseCreate, durationMin: 481 }).success).toBe(
       false,
     );
@@ -79,11 +81,14 @@ describe('createAppointmentSchema', () => {
   });
 
   it('rechaza uuids inválidos y montos no positivos', () => {
-    expect(fieldOf(createAppointmentSchema.safeParse({ ...baseCreate, patientId: '123' }), 'patientId')).toBe(
-      'Paciente inválido.',
-    );
     expect(
-      fieldOf(createAppointmentSchema.safeParse({ ...baseCreate, professionalId: 'x' }), 'professionalId'),
+      fieldOf(createAppointmentSchema.safeParse({ ...baseCreate, patientId: '123' }), 'patientId'),
+    ).toBe('Paciente inválido.');
+    expect(
+      fieldOf(
+        createAppointmentSchema.safeParse({ ...baseCreate, professionalId: 'x' }),
+        'professionalId',
+      ),
     ).toBe('Profesional inválido.');
     expect(
       createAppointmentSchema.safeParse({ ...baseCreate, signaRequired: true, signaAmount: 0 })
@@ -199,12 +204,12 @@ describe('registerSignaSchema', () => {
   });
 
   it('valida monto y método', () => {
-    expect(
-      registerSignaSchema.safeParse({ ...paidComplete, signaReceived: -100 }).success,
-    ).toBe(false);
-    expect(
-      registerSignaSchema.safeParse({ ...paidComplete, signaMethod: 'CHEQUE' }).success,
-    ).toBe(false);
+    expect(registerSignaSchema.safeParse({ ...paidComplete, signaReceived: -100 }).success).toBe(
+      false,
+    );
+    expect(registerSignaSchema.safeParse({ ...paidComplete, signaMethod: 'CHEQUE' }).success).toBe(
+      false,
+    );
     expect(
       registerSignaSchema.safeParse({ ...paidComplete, signaDate: '10-11-2026' }).success,
     ).toBe(false);

@@ -481,9 +481,7 @@ export class AppointmentsService {
       metadata: {
         patientId: current.patientId,
         paid: input.signaPaid,
-        ...(input.signaPaid
-          ? { received: input.signaReceived, method: input.signaMethod }
-          : {}),
+        ...(input.signaPaid ? { received: input.signaReceived, method: input.signaMethod } : {}),
       },
       ip: actor.ip,
     });

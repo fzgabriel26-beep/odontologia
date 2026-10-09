@@ -3,7 +3,7 @@
 Software Design Document. Especificación viva del proyecto. Toda funcionalidad se
 implementa respetando este documento; los cambios de alcance se registran aquí primero.
 
-- **Versión:** 0.10 (Fase 10)
+- **Versión:** 0.11 (Fase 11)
 - **Fecha:** 2026-10-08
 - **Decisiones técnicas:** ver `docs/ADR.md`
 
@@ -223,8 +223,7 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
   (enum `AUDIT_ACTIONS`), usuario, paciente — incluye tanto las filas
   `entityType=PATIENT` como las que llevan `metadata.patientId`
   (evoluciones, odontograma, archivos, turnos) — y rango de fechas
-  `from`/`to` (día completo en UTC). Paginación `limit` (1–500, por defecto
-  50) + `offset`, orden `createdAt` descendente, con el nombre del autor.
+  `from`/`to` (día completo en UTC). Paginación `limit` (1–500, por defecto 50) + `offset`, orden `createdAt` descendente, con el nombre del autor.
   Solo lectura: no existe ningún POST/PATCH/DELETE (insert-only). Además,
   el `AuditInterceptor` global (ADR-014) escribe una fila `API_MUTATION`
   cuando una mutación HTTP exitosa no dejó auditoría de dominio.
@@ -283,7 +282,7 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
 | 8   | Agenda y turnos (estados, señas, cancelaciones, ausencias)     | ✅ Completada (2026-10-08) |
 | 9   | Auditoría (interceptor + panel)                                | ✅ Completada (2026-10-08) |
 | 10  | PDF del odontograma (Playwright, ADR-004)                      | ✅ Completada (2026-10-08) |
-| 11  | Aplicación de escritorio (Tauri)                               | Pendiente                  |
+| 11  | Aplicación de escritorio (Tauri)                               | ✅ Completada (2026-10-08) |
 | 12  | E2E, hardening, backups/restauración                           | Pendiente                  |
 
 **Definición de "terminada":** UI + backend + persistencia + validaciones +

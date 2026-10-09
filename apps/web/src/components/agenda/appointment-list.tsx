@@ -96,9 +96,7 @@ export function AppointmentEntry({
         {appointment.cancelReason !== null ? (
           <p className="text-xs text-muted-foreground">
             Cancelación: {appointment.cancelReason}
-            {appointment.cancelledBy !== null
-              ? ` (por ${userName(appointment.cancelledBy)})`
-              : ''}
+            {appointment.cancelledBy !== null ? ` (por ${userName(appointment.cancelledBy)})` : ''}
           </p>
         ) : null}
         {appointment.observations !== null && appointment.observations !== '' ? (
@@ -201,10 +199,7 @@ export function AppointmentListPanel({
       ) : null}
 
       {historyTarget !== null ? (
-        <HistoryDialog
-          appointment={historyTarget}
-          onCancel={() => setHistoryTarget(null)}
-        />
+        <HistoryDialog appointment={historyTarget} onCancel={() => setHistoryTarget(null)} />
       ) : null}
     </div>
   );

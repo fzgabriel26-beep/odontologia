@@ -14,14 +14,14 @@ export const auditQuerySchema = z
     patientId: z.uuid({ message: 'Paciente inválido.' }).optional(),
     from: dateOnlySchema.optional(),
     to: dateOnlySchema.optional(),
-    limit: z
-      .coerce.number({ message: 'Límite inválido.' })
+    limit: z.coerce
+      .number({ message: 'Límite inválido.' })
       .int('El límite debe ser un número entero.')
       .min(1, 'El límite mínimo es 1.')
       .max(500, 'El límite máximo es 500.')
       .optional(),
-    offset: z
-      .coerce.number({ message: 'Desplazamiento inválido.' })
+    offset: z.coerce
+      .number({ message: 'Desplazamiento inválido.' })
       .int('El desplazamiento debe ser un número entero.')
       .min(0, 'El desplazamiento no puede ser negativo.')
       .max(1_000_000, 'Desplazamiento demasiado grande.')

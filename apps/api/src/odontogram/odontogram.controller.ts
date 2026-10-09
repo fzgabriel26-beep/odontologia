@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Req,
-  Res,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Req, Res } from '@nestjs/common';
 import type { ServerResponse } from 'node:http';
 import type { CreateToothEventInput, UpdateToothInput } from '@odonto/validation';
 import { createToothEventSchema, updateToothSchema } from '@odonto/validation';

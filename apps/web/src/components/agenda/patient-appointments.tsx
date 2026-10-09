@@ -29,9 +29,7 @@ export function PatientAppointments({ patient }: { patient: AppointmentPatientRe
       setAppointments(list);
       setLoadError(null);
     } catch (error) {
-      setLoadError(
-        error instanceof ApiError ? error.message : 'No se pudieron cargar los turnos.',
-      );
+      setLoadError(error instanceof ApiError ? error.message : 'No se pudieron cargar los turnos.');
     }
   }, [patient.id]);
 

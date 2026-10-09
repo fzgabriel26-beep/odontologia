@@ -4,6 +4,7 @@ import { config } from 'dotenv';
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
+import { corsOptions } from '../common/utils/origins';
 
 /**
  * Tests HTTP de autenticación (SDD, fase 2): flujo de cookie httpOnly,
@@ -26,6 +27,8 @@ describe('Autenticación HTTP (cookie de sesión)', () => {
     const { AppModule } = await import('../app.module');
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
     app = moduleRef.createNestApplication();
+    // Mismo CORS que el bootstrap real (main.ts) para poder probarlo por HTTP.
+    app.enableCors(corsOptions());
     await app.init();
   });
 
@@ -109,13 +112,44 @@ describe('Autenticación HTTP (cookie de sesión)', () => {
   });
 
   it('permite el Origin del frontend configurado (WEB_ORIGIN)', async () => {
+    const webOrigin = process.env.WEB_ORIGIN?.split(',')[0] ?? 'http://localhost:3000';
     const response = await request(app.getHttpServer())
       .post('/auth/login')
-      .set('Origin', process.env.WEB_ORIGIN ?? 'http://localhost:3000')
+      .set('Origin', webOrigin)
       .send({ email: 'admin@consultorio.local', password: 'PasswordIncorrecta1' });
 
     // Llega al servicio de auth (401), no lo corta el guard CSRF.
     expect(response.status).toBe(401);
     expect(response.body.error.code).toBe('INVALID_CREDENTIALS');
+  });
+
+  it('permite el Origin del escritorio Tauri: CORS + cookie SameSite=None; Secure (fase 11)', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/auth/login')
+      .set('Origin', 'http://tauri.localhost')
+      .send({ email: 'admin@consultorio.local', password: 'Admin1234!' });
+
+    // Llega al servicio de auth y responde con CORS habilitado (no lo corta
+    // el guard CSRF): la webview de Tauri es cross-site con localhost, así
+    // que la sesión se setea con SameSite=None; Secure (ADR-015).
+    expect(response.status).toBe(200);
+    expect(response.headers['access-control-allow-origin']).toBe('http://tauri.localhost');
+    expect(response.headers['access-control-allow-credentials']).toBe('true');
+    const cookie = response.headers['set-cookie']?.[0] ?? '';
+    expect(cookie).toContain('HttpOnly');
+    expect(cookie).toContain('; Secure');
+    expect(cookie).toContain('SameSite=None');
+  });
+
+  it('mantiene SameSite=Lax para el login del web (ADR-012)', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/auth/login')
+      .set('Origin', 'http://localhost:3000')
+      .send({ email: 'admin@consultorio.local', password: 'Admin1234!' });
+
+    expect(response.status).toBe(200);
+    const cookie = response.headers['set-cookie']?.[0] ?? '';
+    expect(cookie).toContain('SameSite=Lax');
+    expect(cookie).not.toContain('SameSite=None');
   });
 });

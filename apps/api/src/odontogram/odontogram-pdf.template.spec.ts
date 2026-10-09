@@ -15,7 +15,7 @@ import { buildOdontogramHtml, escapeHtml } from './odontogram-pdf.template';
 describe('Template del PDF del odontograma', () => {
   const patient = {
     firstName: 'María <Test>',
-    lastName: "Pérez & Hnos",
+    lastName: 'Pérez & Hnos',
     dni: '30111222',
     birthDate: new Date('1992-05-12T00:00:00.000Z'),
   };
@@ -44,7 +44,7 @@ describe('Template del PDF del odontograma', () => {
 
   it('escapa HTML en todos los datos del paciente', () => {
     expect(html).toContain('Pérez &amp; Hnos, María &lt;Test&gt;');
-    expect(html).not.toContain("Pérez & Hnos");
+    expect(html).not.toContain('Pérez & Hnos');
     expect(html).not.toContain('<Test>');
     expect(html).not.toContain('<script>');
     expect(escapeHtml('<b>"x"\'</b>')).toBe('&lt;b&gt;&quot;x&quot;&#39;&lt;/b&gt;');

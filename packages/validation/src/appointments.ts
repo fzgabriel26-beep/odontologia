@@ -80,8 +80,7 @@ export const changeAppointmentStatusSchema = z
       !REASON_REQUIRED_STATUSES.includes(value.status) ||
       (value.reason !== null && value.reason !== undefined && value.reason.length > 0),
     {
-      message:
-        'El motivo es obligatorio para cancelar, marcar ausente o reprogramar un turno.',
+      message: 'El motivo es obligatorio para cancelar, marcar ausente o reprogramar un turno.',
       path: ['reason'],
     },
   );

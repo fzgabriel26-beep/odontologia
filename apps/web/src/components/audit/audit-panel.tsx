@@ -108,8 +108,7 @@ export function AuditPanel() {
           </NativeSelect>
           {usersError ? (
             <p className="text-xs text-muted-foreground">
-              No se pudo cargar el listado de usuarios; el filtro de usuario queda
-              deshabilitado.
+              No se pudo cargar el listado de usuarios; el filtro de usuario queda deshabilitado.
             </p>
           ) : null}
         </div>

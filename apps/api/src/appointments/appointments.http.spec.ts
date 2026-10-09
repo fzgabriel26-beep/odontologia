@@ -184,8 +184,12 @@ describe('Agenda de turnos (HTTP)', () => {
     expect(list.body.error.code).toBe('UNAUTHORIZED');
 
     expect((await request(app.getHttpServer()).get('/appointments/stats')).status).toBe(401);
-    expect((await request(app.getHttpServer()).get('/appointments/professionals')).status).toBe(401);
-    expect((await request(app.getHttpServer()).get(`/patients/${patientId}/appointments`)).status).toBe(401);
+    expect((await request(app.getHttpServer()).get('/appointments/professionals')).status).toBe(
+      401,
+    );
+    expect(
+      (await request(app.getHttpServer()).get(`/patients/${patientId}/appointments`)).status,
+    ).toBe(401);
 
     const create = await createTurno(
       { patientId, professionalId: staffId, date: today, time: '10:00', durationMin: 30 },
@@ -291,9 +295,7 @@ describe('Agenda de turnos (HTTP)', () => {
       durationMin: 2,
     });
     expect(badDuration.status).toBe(400);
-    expect(badDuration.body.error.fields.durationMin).toBe(
-      'La duración mínima es de 5 minutos.',
-    );
+    expect(badDuration.body.error.fields.durationMin).toBe('La duración mínima es de 5 minutos.');
 
     const missingPatient = await createTurno({
       patientId: FAR_FUTURE_ID,
@@ -378,9 +380,7 @@ describe('Agenda de turnos (HTTP)', () => {
       .set('Cookie', staffCookie);
     expect(byStatus.status).toBe(200);
     expect(byStatus.body.length).toBeGreaterThanOrEqual(4);
-    expect(
-      byStatus.body.every((a: { status: string }) => a.status === 'PENDIENTE'),
-    ).toBe(true);
+    expect(byStatus.body.every((a: { status: string }) => a.status === 'PENDIENTE')).toBe(true);
 
     const invertedRange = await request(app.getHttpServer())
       .get(`/appointments?from=${dateD3}&to=${dateD1}`)
@@ -453,9 +453,9 @@ describe('Agenda de turnos (HTTP)', () => {
       where: { action: 'APPOINTMENT_STATUS_CHANGED', entityId: apptToday },
     });
     expect(audits).toHaveLength(4);
-    expect(
-      audits.some((row) => JSON.stringify(row.metadata).includes('"to":"CONFIRMADO"')),
-    ).toBe(true);
+    expect(audits.some((row) => JSON.stringify(row.metadata).includes('"to":"CONFIRMADO"'))).toBe(
+      true,
+    );
   });
 
   it('rechaza transiciones inválidas con 409 INVALID_TRANSITION', async () => {
@@ -629,8 +629,7 @@ describe('Agenda de turnos (HTTP)', () => {
     expect(
       signaAudits.some(
         (row) =>
-          row.userId === staffId &&
-          JSON.stringify(row.metadata).includes('"received":15000'),
+          row.userId === staffId && JSON.stringify(row.metadata).includes('"received":15000'),
       ),
     ).toBe(true);
 

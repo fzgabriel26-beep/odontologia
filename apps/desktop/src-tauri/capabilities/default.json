@@ -1,0 +1,6 @@
+{
+  "identifier": "default",
+  "description": "Permisos de la ventana principal. La app no invoca comandos de Tauri desde JS (fase 11); solo renderiza la web.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}
