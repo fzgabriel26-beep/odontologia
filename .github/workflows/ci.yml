@@ -44,8 +44,9 @@ jobs:
       - name: Instalar dependencias
         run: pnpm install --frozen-lockfile
 
-      - name: Migraciones y seed
+      - name: Generar cliente Prisma y migrar
         run: |
+          pnpm generate
           pnpm exec prisma migrate deploy
           pnpm db:seed
 
