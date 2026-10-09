@@ -16,6 +16,13 @@ WORKDIR /app
 # pnpm versionado igual que `packageManager` (package.json raíz).
 RUN npm install -g pnpm@12.10.1
 
+# OpenSSL: Prisma detecta la versión del sistema para elegir el binario del
+# schema-engine (el `migrate deploy` de arranque); node:24-slim no trae el
+# binario `openssl` y Prisma cae mal por defecto (build log, fase 12b).
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl \
+  && rm -rf /var/lib/apt/lists/*
+
 # Monorepo completo: primero dependencias (lockfile congelado), luego el
 # cliente de Prisma generado y el build de producción del API junto con sus
 # paquetes de trabajo (turbo respeta dependsOn: ^build).
@@ -32,5 +39,6 @@ ENV NODE_ENV=production \
 
 EXPOSE 3001
 
-# migrate deploy en cada arranque (idempotente) y arranque del servidor.
-CMD ["sh", "-c", "pnpm exec prisma migrate deploy && node apps/api/dist/main.js"]
+# migrate deploy en cada arranque (idempotente), seed idempotente (garantiza el
+# admin inicial de la demo aunque la BD se recree) y arranque del servidor.
+CMD ["sh", "-c", "pnpm exec prisma migrate deploy && pnpm db:seed && node apps/api/dist/main.js"]
