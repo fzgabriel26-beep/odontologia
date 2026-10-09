@@ -5,9 +5,31 @@ on:
     branches: [main]
   pull_request:
 
+env:
+  TZ: America/Argentina/Buenos_Aires
+  # Los specs de Vitest (apps/api) requieren BD migrada + seed; el .env no
+  # existe en CI, así que la URL sale del workflow (fase 12).
+  DATABASE_URL: postgresql://odontologia:odontologia@localhost:5432/odontologia_ci?schema=public
+
 jobs:
   ci:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: odontologia
+          POSTGRES_PASSWORD: odontologia
+          POSTGRES_DB: odontologia_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
 
@@ -21,6 +43,11 @@ jobs:
 
       - name: Instalar dependencias
         run: pnpm install --frozen-lockfile
+
+      - name: Migraciones y seed
+        run: |
+          pnpm exec prisma migrate deploy
+          pnpm db:seed
 
       - name: Typecheck
         run: pnpm typecheck
