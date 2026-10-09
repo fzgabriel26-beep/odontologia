@@ -10,7 +10,7 @@
     },
     "test": {
       "dependsOn": ["^build"],
-      "env": ["DATABASE_URL", "TZ"]
+      "env": ["DATABASE_URL", "TZ", "E2E_PROD_URL", "E2E_EMAIL", "E2E_PASSWORD"]
     },
     "lint": {},
     "dev": {

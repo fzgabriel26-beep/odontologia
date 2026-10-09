@@ -13,7 +13,7 @@
     "generate": "prisma generate",
     "typecheck": "pnpm generate && turbo typecheck",
     "lint": "eslint .",
-    "test": "pnpm generate && turbo test",
+    "test": "pnpm generate && turbo test --filter=!@odonto/web && pnpm --filter @odonto/web test",
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",

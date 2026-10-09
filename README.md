@@ -43,18 +43,19 @@ Credenciales iniciales del administrador (desarrollo): `admin@consultorio.local`
 
 ## Scripts
 
-| Script                               | Descripción                                |
-| ------------------------------------ | ------------------------------------------ |
-| `pnpm dev`                           | Desarrollo de todas las apps               |
-| `pnpm build`                         | Genera el cliente Prisma y compila todo    |
-| `pnpm typecheck`                     | Genera el cliente Prisma y verifica tipos  |
-| `pnpm lint`                          | ESLint en todo el repositorio              |
-| `pnpm test`                          | Tests con Vitest (incl. constraints de BD) |
-| `pnpm generate`                      | Regenera el cliente Prisma                 |
-| `pnpm db:migrate -- --name <nombre>` | Crea/aplica migraciones                    |
-| `pnpm db:seed`                       | Seed idempotente (roles + admin)           |
-| `pnpm db:studio`                     | Prisma Studio                              |
-| `pnpm format`                        | Formateo con Prettier                      |
+| Script                               | Descripción                                 |
+| ------------------------------------ | ------------------------------------------- |
+| `pnpm dev`                           | Desarrollo de todas las apps                |
+| `pnpm build`                         | Genera el cliente Prisma y compila todo     |
+| `pnpm typecheck`                     | Genera el cliente Prisma y verifica tipos   |
+| `pnpm lint`                          | ESLint en todo el repositorio               |
+| `pnpm test`                          | Tests con Vitest + E2E del web (Playwright) |
+| `pnpm --filter @odonto/web test`     | Solo los E2E del web (spawn API+web)        |
+| `pnpm generate`                      | Regenera el cliente Prisma                  |
+| `pnpm db:migrate -- --name <nombre>` | Crea/aplica migraciones                     |
+| `pnpm db:seed`                       | Seed idempotente (roles + admin)            |
+| `pnpm db:studio`                     | Prisma Studio                               |
+| `pnpm format`                        | Formateo con Prettier                       |
 
 ## Estructura
 

@@ -56,8 +56,17 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      - name: Tests
-        run: pnpm test
+      - name: Tests (unit / integración)
+        # El E2E spawnhea servidores dev y comparte el rate limit de login
+        # (10/min) con los specs de auth: corre en un paso aparte, después.
+        run: |
+          pnpm generate
+          pnpm exec turbo test --filter='!@odonto/web'
+
+      - name: E2E del web (Playwright)
+        run: |
+          pnpm --filter @odonto/web exec playwright install --with-deps chromium
+          pnpm --filter @odonto/web test
 
       - name: Build
         run: pnpm build
