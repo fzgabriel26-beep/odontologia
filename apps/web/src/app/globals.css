@@ -6,30 +6,31 @@
 
 /* ---------------------------------------------------------------
    Tokens de tema estilo shadcn/ui (requeridos por los componentes
-   de components/ui). Tema claro neutro para MVP.
+   de components/ui). Paleta "tenue": blancos cálidos, dorado claro
+   suave, bordes sutiles y tipografía sencilla (rediseño general).
    --------------------------------------------------------------- */
 :root {
   color-scheme: light;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --background: oklch(0.995 0.002 95);
+  --foreground: oklch(0.28 0.015 85);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.28 0.015 85);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.28 0.015 85);
+  --primary: oklch(0.88 0.065 88);
+  --primary-foreground: oklch(0.32 0.035 85);
+  --secondary: oklch(0.965 0.008 90);
+  --secondary-foreground: oklch(0.32 0.02 85);
+  --muted: oklch(0.965 0.008 90);
+  --muted-foreground: oklch(0.53 0.012 85);
+  --accent: oklch(0.93 0.045 88);
+  --accent-foreground: oklch(0.32 0.03 85);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --radius: 0.625rem;
+  --border: oklch(0.915 0.008 90);
+  --input: oklch(0.915 0.008 90);
+  --ring: oklch(0.82 0.07 88);
+  --radius: 0.5rem;
 }
 
 @theme inline {
@@ -52,6 +53,8 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  /* Dorado profundo: solo texto/acento (el dorado claro es --primary). */
+  --color-gold: oklch(0.5 0.06 85);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

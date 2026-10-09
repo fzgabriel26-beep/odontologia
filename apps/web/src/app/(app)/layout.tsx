@@ -43,7 +43,7 @@ function NavLink({
       aria-current={active ? 'page' : undefined}
       className={
         active
-          ? 'rounded-md bg-secondary px-3 py-2 text-sm font-medium text-foreground'
+          ? 'rounded-md bg-accent px-3 py-2 text-sm font-medium text-foreground'
           : 'rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground'
       }
     >
@@ -61,7 +61,7 @@ function AppChrome({ children }: { children: ReactNode }) {
 
   if (loading || !user) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-neutral-50">
+      <main className="flex min-h-screen items-center justify-center bg-background">
         <p className="text-sm text-muted-foreground">Cargando…</p>
       </main>
     );
@@ -80,11 +80,11 @@ function AppChrome({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="flex min-h-screen bg-neutral-50">
-      <aside className="hidden w-60 shrink-0 flex-col border-r bg-background md:flex">
+    <div className="flex min-h-screen bg-background">
+      <aside className="hidden w-60 shrink-0 flex-col border-r bg-card md:flex">
         <div className="border-b px-4 py-4">
           <p className="text-sm font-semibold leading-tight">Sistema de Gestión</p>
-          <p className="text-sm font-semibold leading-tight">Odontológica</p>
+          <p className="text-sm font-semibold leading-tight text-gold">Odontológica</p>
         </div>
         <nav className="flex flex-1 flex-col gap-1 p-3" aria-label="Navegación principal">
           {visibleItems.map((item) => (
@@ -102,7 +102,7 @@ function AppChrome({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 items-center gap-3 border-b bg-background px-4">
+        <header className="flex h-14 items-center gap-3 border-b bg-card px-4">
           <button
             type="button"
             className="rounded-md border px-2 py-1 text-sm md:hidden"
@@ -130,7 +130,7 @@ function AppChrome({ children }: { children: ReactNode }) {
 
         {mobileNavOpen ? (
           <nav
-            className="flex flex-col gap-1 border-b bg-background p-3 md:hidden"
+            className="flex flex-col gap-1 border-b bg-card p-3 md:hidden"
             aria-label="Navegación principal (móvil)"
           >
             {visibleItems.map((item) => (
