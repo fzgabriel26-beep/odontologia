@@ -2,11 +2,14 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { corsOptions } from './common/utils/origins';
+import { securityHeaders } from './common/utils/security-headers';
 import { setupSwagger, swaggerEnabled } from './swagger/setup';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
+  // Headers de seguridad en TODA respuesta (ADR-017, fase 12).
+  app.use(securityHeaders);
   app.setGlobalPrefix('api/v1');
   // Orígenes permitidos: web (localhost:3000) y escritorio Tauri
   // (tauri.localhost), ADR-015.

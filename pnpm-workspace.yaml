@@ -12,3 +12,17 @@ allowBuilds:
   workerd: true
   # Telemetría de terceros: nunca corre en este proyecto (política de seguridad).
   '@scarf/scarf': false
+
+# Parches de seguridad (fase 12): algunos pads fijan versiones con CVEs; estos
+# overrides los empujan a la versión parcheada sin esperar upstream.
+overrides:
+  # next fija postcss 8.4.31 (4 CVEs: sourceMappingURL/XSS); 8.5.23 es
+  # compatible por semver y solo afecta a esa copia exacta.
+  'postcss@8.4.31': '8.5.23'
+  # @nestjs/swagger fija js-yaml 5.3.0 (DoS moderado, parcheado en 5.4.2).
+  # Override por spec exacta: la copia de eslint (js-yaml 4.x) queda intacta.
+  'js-yaml@5.3.0': '5.4.2'
+  # prisma empaqueta mysql2 (jamás usado: el proveedor es postgresql) con
+  # downgrade de auth plugin, y deepmerge-ts (solo merge de config propia).
+  mysql2: '3.23.1'
+  deepmerge-ts: '8.0.0'

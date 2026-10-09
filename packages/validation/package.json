@@ -12,10 +12,10 @@
   },
   "dependencies": {
     "@odonto/types": "workspace:*",
-    "zod": "^4.1.12"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
-    "typescript": "^5.9.0",
-    "vitest": "^3.2.4"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.11"
   }
 }

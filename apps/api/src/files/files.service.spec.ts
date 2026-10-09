@@ -135,11 +135,17 @@ describe('FilesService (fase 7 — archivos médicos)', () => {
       actor,
     );
 
-    // Nombre base sin rutas; clave generada por el servidor.
+    // Nombre base sin rutas; la clave es generada y guardada SOLO por el
+    // servidor (se verifica en BD: la respuesta HTTP jamás la expone).
     expect(created.originalName).toBe('radio final (copia).PNG');
     expect(created.name).toBe('radio final (copia).PNG');
-    expect(created.storageKey.startsWith(`patients/${patientId}/`)).toBe(true);
-    expect(created.storageKey.endsWith('.png')).toBe(true);
+    expect(created).not.toHaveProperty('storageKey');
+    const dbRow = await prisma.medicalFile.findUnique({
+      where: { id: created.id },
+      select: { storageKey: true },
+    });
+    expect(dbRow?.storageKey.startsWith(`patients/${patientId}/`)).toBe(true);
+    expect(dbRow?.storageKey.endsWith('.png')).toBe(true);
     expect(created.mimeType).toBe('image/png');
     expect(created.size).toBe(PNG_BYTES.length);
     expect(created.description).toBe('Panorámica de control');
@@ -149,7 +155,7 @@ describe('FilesService (fase 7 — archivos médicos)', () => {
 
     // El blob existe en el almacenamiento con los bytes originales.
     const storage = testModule.get<StorageProvider>(STORAGE_PROVIDER);
-    const stored = await readStream(await storage.getStream(created.storageKey));
+    const stored = await readStream(await storage.getStream(dbRow?.storageKey ?? ''));
     expect(Buffer.compare(stored, PNG_BYTES)).toBe(0);
 
     // Auditoría FILE_UPLOADED sin texto libre del usuario.

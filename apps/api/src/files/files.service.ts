@@ -38,6 +38,18 @@ export type MedicalFileWithUploader = MedicalFile & {
   uploadedBy: { id: string; firstName: string; lastName: string };
 };
 
+/**
+ * Lo que ve el cliente: idéntico a la fila pero SIN `storageKey` (clave
+ * interna del servidor, SDD §10: jamás sale en una respuesta HTTP).
+ */
+export type MedicalFileView = Omit<MedicalFileWithUploader, 'storageKey'>;
+
+function toFileView(file: MedicalFileWithUploader): MedicalFileView {
+  const { storageKey, ...view } = file;
+  void storageKey;
+  return view;
+}
+
 interface UploadFields {
   kind: FileKind;
   description?: string | null;
@@ -185,7 +197,7 @@ export class FilesService {
     file: UploadedFilePayload | undefined,
     fields: UploadFields,
     actor: FileActor,
-  ): Promise<MedicalFileWithUploader> {
+  ): Promise<MedicalFileView> {
     const { mime, ext, buffer, originalName } = this.validateUpload(file);
 
     // Clave generada por el servidor (nunca la provee el cliente).
@@ -233,7 +245,7 @@ export class FilesService {
       },
       ip: actor.ip,
     });
-    return created;
+    return toFileView(created);
   }
 
   /** Subida a nivel paciente (el diente es opcional). */
@@ -242,7 +254,7 @@ export class FilesService {
     file: UploadedFilePayload | undefined,
     fields: UploadFileFieldsInput,
     actor: FileActor,
-  ): Promise<MedicalFileWithUploader> {
+  ): Promise<MedicalFileView> {
     await this.findPatientOrFail(patientId);
 
     let toothId: string | null = null;
@@ -273,23 +285,24 @@ export class FilesService {
     file: UploadedFilePayload | undefined,
     fields: UploadToToothFieldsInput,
     actor: FileActor,
-  ): Promise<MedicalFileWithUploader> {
+  ): Promise<MedicalFileView> {
     const tooth = await this.findToothOrFail(toothId);
     return this.storeFile(tooth.patientId, tooth.id, file, fields, actor);
   }
 
   /** Metadatos del paciente: excluye archivados (el archivado sale de circulación). */
-  async listPatientFiles(patientId: string): Promise<MedicalFileWithUploader[]> {
+  async listPatientFiles(patientId: string): Promise<MedicalFileView[]> {
     await this.findPatientOrFail(patientId);
-    return this.prisma.medicalFile.findMany({
+    const files = await this.prisma.medicalFile.findMany({
       where: { patientId, archivedAt: null },
       orderBy: { createdAt: 'desc' },
       include: { uploadedBy: { select: AUTHOR_SELECT } },
     });
+    return files.map(toFileView);
   }
 
-  /** Metadatos de un archivo puntual (incluye archivados). */
-  async getFile(fileId: string): Promise<MedicalFileWithUploader> {
+  /** Registro completo (incluye `storageKey`): solo uso interno del servidor. */
+  private async getFullFile(fileId: string): Promise<MedicalFileWithUploader> {
     const file = await this.prisma.medicalFile.findUnique({
       where: { id: fileId },
       include: { uploadedBy: { select: AUTHOR_SELECT } },
@@ -305,6 +318,11 @@ export class FilesService {
     return file;
   }
 
+  /** Metadatos de un archivo puntual (incluye archivados). Sin `storageKey`. */
+  async getFile(fileId: string): Promise<MedicalFileView> {
+    return toFileView(await this.getFullFile(fileId));
+  }
+
   /**
    * Proxy de descarga/visualización (SDD §4.6): devuelve el stream del bucket
    * privado y audita el acceso (FILE_DOWNLOADED). Nunca hay URL pública.
@@ -312,8 +330,8 @@ export class FilesService {
   async openFile(
     fileId: string,
     actor: FileActor,
-  ): Promise<{ file: MedicalFileWithUploader; stream: Readable }> {
-    const file = await this.getFile(fileId);
+  ): Promise<{ file: MedicalFileView; stream: Readable }> {
+    const file = await this.getFullFile(fileId);
     const stream = await this.storage.getStream(file.storageKey);
     await this.audit.log({
       userId: actor.id,
@@ -323,11 +341,11 @@ export class FilesService {
       metadata: { patientId: file.patientId, kind: file.kind, size: file.size },
       ip: actor.ip,
     });
-    return { file, stream };
+    return { file: toFileView(file), stream };
   }
 
   /** Archivado lógico (auditado); el blob nunca se borra. */
-  async archiveFile(fileId: string, actor: FileActor): Promise<MedicalFileWithUploader> {
+  async archiveFile(fileId: string, actor: FileActor): Promise<MedicalFileView> {
     const file = await this.getFile(fileId);
     if (file.archivedAt) {
       throw new ConflictException({
@@ -349,6 +367,6 @@ export class FilesService {
       metadata: { patientId: file.patientId, kind: file.kind },
       ip: actor.ip,
     });
-    return updated;
+    return toFileView(updated);
   }
 }

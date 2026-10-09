@@ -12,10 +12,10 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1147.0",
-    "@nestjs/common": "^11.1.0",
+    "@nestjs/common": "^11.2.7",
     "@nestjs/config": "^12.0.1",
-    "@nestjs/core": "^11.1.0",
-    "@nestjs/platform-express": "^11.1.0",
+    "@nestjs/core": "^11.2.7",
+    "@nestjs/platform-express": "^11.2.7",
     "@nestjs/swagger": "^11.4.7",
     "@nestjs/throttler": "^6.7.1",
     "@odonto/types": "workspace:*",
@@ -24,22 +24,22 @@
     "@prisma/client": "7.10.0",
     "argon2": "^0.45.1",
     "multer": "^2.4.0",
-    "playwright": "^1.63.0",
+    "playwright": "^1.64.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@nestjs/cli": "^11.0.0",
+    "@nestjs/cli": "^11.0.24",
     "@nestjs/testing": "^11.2.7",
-    "@swc/core": "^1.13.0",
+    "@swc/core": "^1.16.13",
     "@types/express": "^5.0.6",
     "@types/multer": "^2.3.0",
-    "@types/node": "^24.0.0",
+    "@types/node": "^24.19.1",
     "@types/supertest": "^7.2.1",
     "supertest": "^7.3.1",
-    "typescript": "^5.9.0",
-    "unplugin-swc": "^1.5.0",
-    "vitest": "^3.2.4"
+    "typescript": "^5.9.3",
+    "unplugin-swc": "^1.6.0",
+    "vitest": "^4.1.11"
   }
 }

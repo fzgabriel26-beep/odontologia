@@ -204,7 +204,8 @@ describe('Archivos médicos (HTTP)', () => {
     expect(created.body.size).toBe(PNG_BYTES.length);
     expect(created.body.kind).toBe('RADIOGRAFIA');
     expect(created.body.originalName).toBe('panoramica.png');
-    expect(created.body.storageKey.startsWith(`patients/${patientId}/`)).toBe(true);
+    // La clave de almacenamiento es interna: jamás sale en la respuesta.
+    expect(created.body).not.toHaveProperty('storageKey');
     expect(created.body.uploadedBy.lastName).toBe('Archivos');
     expect(created.body.archivedAt).toBeNull();
 

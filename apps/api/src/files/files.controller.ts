@@ -39,7 +39,7 @@ import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { maxUploadBytes } from '../common/utils/upload-limit';
 import { medicalFileSchema } from '../swagger/response-schemas';
 import { arrayOf, zodToSchema } from '../swagger/zod-schema';
-import { FilesService, type FileActor, type MedicalFileWithUploader } from './files.service';
+import { FilesService, type FileActor, type MedicalFileView } from './files.service';
 
 interface RequestWithIp {
   ip?: string;
@@ -112,7 +112,7 @@ export class FilesController {
     @UploadedFile() file: Express.Multer.File | undefined,
     @CurrentUser() user: AuthUser,
     @Req() req: RequestWithIp,
-  ): Promise<MedicalFileWithUploader> {
+  ): Promise<MedicalFileView> {
     return this.filesService.uploadToPatient(id, file, body, actorOf(user, req));
   }
 
@@ -135,7 +135,7 @@ export class FilesController {
     @UploadedFile() file: Express.Multer.File | undefined,
     @CurrentUser() user: AuthUser,
     @Req() req: RequestWithIp,
-  ): Promise<MedicalFileWithUploader> {
+  ): Promise<MedicalFileView> {
     return this.filesService.uploadToTooth(id, file, body, actorOf(user, req));
   }
 
@@ -148,7 +148,7 @@ export class FilesController {
   })
   @ApiParam({ name: 'id', format: 'uuid', description: 'UUID del paciente' })
   @ApiOkResponse({ description: 'Archivos del paciente.', schema: arrayOf(medicalFileSchema) })
-  listPatientFiles(@Param('id', UuidParamPipe) id: string): Promise<MedicalFileWithUploader[]> {
+  listPatientFiles(@Param('id', UuidParamPipe) id: string): Promise<MedicalFileView[]> {
     return this.filesService.listPatientFiles(id);
   }
 
@@ -161,7 +161,7 @@ export class FilesController {
   })
   @ApiParam({ name: 'id', format: 'uuid', description: 'UUID del archivo' })
   @ApiOkResponse({ description: 'Metadatos del archivo.', schema: medicalFileSchema })
-  getFile(@Param('id', UuidParamPipe) id: string): Promise<MedicalFileWithUploader> {
+  getFile(@Param('id', UuidParamPipe) id: string): Promise<MedicalFileView> {
     return this.filesService.getFile(id);
   }
 
@@ -233,7 +233,7 @@ export class FilesController {
     @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthUser,
     @Req() req: RequestWithIp,
-  ): Promise<MedicalFileWithUploader> {
+  ): Promise<MedicalFileView> {
     return this.filesService.archiveFile(id, actorOf(user, req));
   }
 }

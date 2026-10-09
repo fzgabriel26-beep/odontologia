@@ -157,8 +157,6 @@ export interface MedicalFile {
   kind: FileKind;
   mimeType: string;
   size: number;
-  /** Clave interna del bucket; nunca hay URL pública (proxy autenticado). */
-  storageKey: string;
   description: string | null;
   uploadedById: string;
   uploadedBy: MedicalFileUser;
