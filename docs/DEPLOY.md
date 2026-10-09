@@ -143,10 +143,37 @@ Pasale solo:
 
 ## Troubleshooting
 
-| Síntoma                       | Causa probable                                 | Solución                            |
-| ----------------------------- | ---------------------------------------------- | ----------------------------------- |
-| CORS en consola del navegador | `WEB_ORIGIN` desactualizado o con `/` al final | Paso 5: URL exacta del sitio y save |
-| Login ok pero `/auth/me` 401  | Falta `SESSION_COOKIE_SAMESITE=none`           | Agregar la env y redeploy           |
-| 502/503                       | Servicio durmiendo o build fallido             | Esperar cold start o revisar Logs   |
-| `prisma migrate deploy` falla | `DATABASE_URL` mal copiado                     | Revisar Internal Database URL       |
-| Seed no corre                 | Estás en el servicio equivocado                | Shell del servicio **API**          |
+| Síntoma                                                                   | Causa probable                                                           | Solución                                                                            |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| CORS en consola del navegador                                             | `WEB_ORIGIN` desactualizado o con `/` al final                           | Paso 5: URL exacta del sitio y save                                                 |
+| Login ok pero `/auth/me` 401                                              | Falta `SESSION_COOKIE_SAMESITE=none`                                     | Agregar la env y redeploy                                                           |
+| 502/503                                                                   | Servicio durmiendo o build fallido                                       | Esperar cold start o revisar Logs                                                   |
+| `prisma migrate deploy` falla                                             | `DATABASE_URL` mal copiado                                               | Revisar Internal Database URL                                                       |
+| Seed no corre                                                             | Estás en el servicio equivocado                                          | Shell del servicio **API**                                                          |
+| Build: `Cannot resolve environment variable: DATABASE_URL`                | Falta el fallback de `prisma.config.ts`                                  | Ya resuelto en `f3daaae` (generate no necesita conexión)                            |
+| Desde la red local, la BD externa cierra con `SSL/TLS required` / `P1017` | El endpoint _external_ no aceptó conexiones desde esta red de desarrollo | Usar el endpoint _internal_ dentro de Render (migrate/seed corren en el contenedor) |
+
+## Recursos desplegados (ejecución real de la fase 12b, 2026-10-09)
+
+Se crearon con la **API de Render** (mismos valores que esta guía, paso a paso):
+
+| Recurso                     | Valor                                                                                           |
+| --------------------------- | ----------------------------------------------------------------------------------------------- |
+| Repo (privado)              | <https://github.com/fzgabriel26-beep/odontologia>                                               |
+| **Web (link del probador)** | <https://odontologia-web-6uzt.onrender.com>                                                     |
+| API                         | <https://odontologia-api-tlk2.onrender.com>                                                     |
+| PostgreSQL                  | `odontologia-demo` — free, oregón, **expira 2026-11-08** (90 días)                              |
+| Admin seed                  | `admin@consultorio.local` (la contraseña vive en la env `SEED_ADMIN_PASSWORD` del servicio API) |
+
+**Notas de la ejecución:**
+
+- El seed corre **dentro del contenedor** en cada arranque (`pnpm db:seed`,
+  idempotente), no desde la máquina local.
+- Dos hallazgos del primer build quedaron corregidos en `f3daaae`:
+  `prisma.config.ts` tolera la ausencia de `DATABASE_URL` en el build (las env
+  vars son de runtime) y el Dockerfile instala `openssl` para que Prisma elija
+  el schema-engine correcto.
+- Smoke verificado tras el deploy: `/health` ok · login con cookie
+  `SameSite=None; Secure` + CORS · `/auth/me` con sesión · sitio estático 200.
+- El sitio estático se construye con `turbo build --filter=@odonto/web`
+  (compila `@odonto/types/ui/validation` antes que Next).

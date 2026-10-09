@@ -269,22 +269,22 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
 
 ## 12. Plan de implementación (fases)
 
-| #   | Fase                                                                             | Estado                                           |
-| --- | -------------------------------------------------------------------------------- | ------------------------------------------------ |
-| 0   | Infraestructura: monorepo, Docker, config, CI, docs                              | ✅ Completada (2026-10-07)                       |
-| 1   | Base de datos: schema.prisma, migración inicial, seed                            | ✅ Completada (2026-10-08)                       |
-| 2   | Autenticación: login, sesión, rate limit, código, recuperación                   | ✅ Completada (2026-10-08)                       |
-| 3   | Usuarios: CRUD, roles, códigos de invitación (panel admin)                       | ✅ Completada (2026-10-08)                       |
-| 4   | Pacientes: CRUD, búsqueda, ficha                                                 | ✅ Completada (2026-10-08)                       |
-| 5   | Historia clínica                                                                 | ✅ Completada (2026-10-08)                       |
-| 6   | Odontograma (SVG FDI, estados, historial)                                        | ✅ Completada (2026-10-08)                       |
-| 7   | Archivos (subida, visualización, descarga, ADR-003)                              | ✅ Completada (2026-10-08)                       |
-| 8   | Agenda y turnos (estados, señas, cancelaciones, ausencias)                       | ✅ Completada (2026-10-08)                       |
-| 9   | Auditoría (interceptor + panel)                                                  | ✅ Completada (2026-10-08)                       |
-| 10  | PDF del odontograma (Playwright, ADR-004)                                        | ✅ Completada (2026-10-08)                       |
-| 11  | Aplicación de escritorio (Tauri)                                                 | ✅ Completada (2026-10-08)                       |
-| 12  | E2E, hardening, backups/restauración                                             | Pendiente                                        |
-| 12b | Despliegue demo (GitHub + Render): Dockerfile, cookie cross-site, guía (ADR-016) | ✅ Código (2026-10-08) · ⏳ despliegue en cuenta |
+| #   | Fase                                                                             | Estado                     |
+| --- | -------------------------------------------------------------------------------- | -------------------------- |
+| 0   | Infraestructura: monorepo, Docker, config, CI, docs                              | ✅ Completada (2026-10-07) |
+| 1   | Base de datos: schema.prisma, migración inicial, seed                            | ✅ Completada (2026-10-08) |
+| 2   | Autenticación: login, sesión, rate limit, código, recuperación                   | ✅ Completada (2026-10-08) |
+| 3   | Usuarios: CRUD, roles, códigos de invitación (panel admin)                       | ✅ Completada (2026-10-08) |
+| 4   | Pacientes: CRUD, búsqueda, ficha                                                 | ✅ Completada (2026-10-08) |
+| 5   | Historia clínica                                                                 | ✅ Completada (2026-10-08) |
+| 6   | Odontograma (SVG FDI, estados, historial)                                        | ✅ Completada (2026-10-08) |
+| 7   | Archivos (subida, visualización, descarga, ADR-003)                              | ✅ Completada (2026-10-08) |
+| 8   | Agenda y turnos (estados, señas, cancelaciones, ausencias)                       | ✅ Completada (2026-10-08) |
+| 9   | Auditoría (interceptor + panel)                                                  | ✅ Completada (2026-10-08) |
+| 10  | PDF del odontograma (Playwright, ADR-004)                                        | ✅ Completada (2026-10-08) |
+| 11  | Aplicación de escritorio (Tauri)                                                 | ✅ Completada (2026-10-08) |
+| 12  | E2E, hardening, backups/restauración                                             | Pendiente                  |
+| 12b | Despliegue demo (GitHub + Render): Dockerfile, cookie cross-site, guía (ADR-016) | ✅ Completada (2026-10-09) |
 
 **Definición de "terminada":** UI + backend + persistencia + validaciones +
 autorización + manejo de errores + tests cuando corresponda + auditoría cuando
