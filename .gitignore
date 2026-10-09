@@ -31,3 +31,11 @@ apps/desktop/src-tauri/gen/
 *.log
 npm-debug.log*
 pnpm-debug.log*
+
+# E2E Playwright (fase 12)
+.auth/
+apps/web/test-results/
+apps/web/playwright-report/
+
+# Backups locales de BD (scripts/backup-db.mjs)
+backups/

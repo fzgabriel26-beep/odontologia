@@ -50,8 +50,8 @@ const stamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate
 )}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
 const file = join(dir, `odontologia_${stamp}.dump`);
 
-console.log(`[backup-db] Destino: ${file}`);
-console.log(`[backup-db] Retención local: ${retentionDays} días`);
+process.stdout.write(`[backup-db] Destino: ${file}\n`);
+process.stdout.write(`[backup-db] Retención local: ${retentionDays} días\n`);
 
 const result = spawnSync(
   'pg_dump',
@@ -86,5 +86,5 @@ for (const name of readdirSync(dir)) {
 }
 
 const sizeMb = (statSync(file).size / (1024 * 1024)).toFixed(2);
-console.log(`[backup-db] OK: ${file} (${sizeMb} MB)`);
-console.log(`[backup-db] Dumps locales eliminados por retención: ${pruned}`);
+process.stdout.write(`[backup-db] OK: ${file} (${sizeMb} MB)\n`);
+process.stdout.write(`[backup-db] Dumps locales eliminados por retención: ${pruned}\n`);

@@ -63,7 +63,8 @@ jobs:
           set -euo pipefail
           # AuditLog queda FUERA de la igualdad: cambia con cada login y el
           # smoke de producción puede escribir mientras corre el drill.
-          SQL='SELECT (SELECT count(*) FROM "User"), (SELECT count(*) FROM "Patient"), (SELECT count(*) FROM "Appointment"), (SELECT count(*) FROM "ClinicalRecord");'
+          # Nombres físicos snake_case (@@map de Prisma).
+          SQL='SELECT (SELECT count(*) FROM users), (SELECT count(*) FROM patients), (SELECT count(*) FROM appointments), (SELECT count(*) FROM clinical_records);'
           DUMP="$(ls -t "$BACKUP_DIR"/*.dump | head -n1)"
 
           echo "== Conteos en la fuente (Render):"
@@ -75,7 +76,7 @@ jobs:
             --no-owner --no-privileges --exit-on-error "$DUMP"
           DST="$(psql --host localhost --username postgres --dbname drill -tA -c "$SQL")"
           echo "   $DST"
-          AUDIT="$(psql --host localhost --username postgres --dbname drill -tA -c 'SELECT count(*) FROM "AuditLog";')"
+          AUDIT="$(psql --host localhost --username postgres --dbname drill -tA -c 'SELECT count(*) FROM audit_logs;')"
           echo "   AuditLog=$AUDIT"
 
           if [ "$SRC" != "$DST" ]; then
