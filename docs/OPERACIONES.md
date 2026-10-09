@@ -8,14 +8,14 @@
 
 ## 1. Entorno de la demo desplegada
 
-| Componente | URL / dato |
-| --- | --- |
-| Web (Next.js, estático) | <https://odontologia-web-6uzt.onrender.com> |
-| API (NestJS) | <https://odontologia-api-tlk2.onrender.com> · prefijo `/api/v1` |
-| PostgreSQL (free) | `odontologia-demo` → `dpg-db45splg1s2s738bs4g0-a` (Oregon) |
-| Swagger (docs API) | `/api/v1/docs` — **apagado en prod**; ver §6 |
-| Cuenta admin demo | `admin@consultorio.local` / `OdontoDemo!2026` |
-| Repo | GitHub privado `fzgabriel26-beep/odontologia` |
+| Componente              | URL / dato                                                      |
+| ----------------------- | --------------------------------------------------------------- |
+| Web (Next.js, estático) | <https://odontologia-web-6uzt.onrender.com>                     |
+| API (NestJS)            | <https://odontologia-api-tlk2.onrender.com> · prefijo `/api/v1` |
+| PostgreSQL (free)       | `odontologia-demo` → `dpg-db45splg1s2s738bs4g0-a` (Oregon)      |
+| Swagger (docs API)      | `/api/v1/docs` — **apagado en prod**; ver §6                    |
+| Cuenta admin demo       | `admin@consultorio.local` / `OdontoDemo!2026`                   |
+| Repo                    | GitHub privado `fzgabriel26-beep/odontologia`                   |
 
 **Limitaciones aceptadas del plan free (ADR-016, ADR-017):**
 
@@ -41,11 +41,11 @@ API Keys) y borrar el secreto `BACKUP_DATABASE_URL` del repo.
 
 Workflow: **`.github/workflows/backup.yml`** (nombre: `Backup`).
 
-| | |
-| --- | --- |
-| Disparo | Diario **06:00 UTC** (03:00 ART) + manual (`gh workflow run Backup`) |
-| Qué hace | `pg_dump -Fc` → drill de restauración → publica artefacto |
-| Artefacto | `odontologia-db-<run>` (un `.dump` por corrida), en la run de Actions |
+|           |                                                                         |
+| --------- | ----------------------------------------------------------------------- |
+| Disparo   | Diario **06:00 UTC** (03:00 ART) + manual (`gh workflow run Backup`)    |
+| Qué hace  | `pg_dump -Fc` → drill de restauración → publica artefacto               |
+| Artefacto | `odontologia-db-<run>` (un `.dump` por corrida), en la run de Actions   |
 | Seguridad | Usa el secreto del repo `BACKUP_DATABASE_URL` (jamás está en el código) |
 
 **Retención configurable (default 30 días):**
@@ -85,8 +85,8 @@ El script **nunca imprime la contraseña** y falla con mensaje claro si falta
 ## 4. Procedimiento de restauración (probado)
 
 > Cada corrida del workflow **ya restaura el dump** en un PostgreSQL 16 efímero
-> y exige que los conteos coincidan con la fuente (paso *Drill de
-> restauración*). Si un dump quedara corrupto, la run diaria falla y se ve en
+> y exige que los conteos coincidan con la fuente (paso _Drill de
+> restauración_). Si un dump quedara corrupto, la run diaria falla y se ve en
 > Actions — la restauración nunca queda "probada solo en papel".
 
 **Restauración manual, paso a paso** (con `pg_restore` 16+):
@@ -115,7 +115,7 @@ pg_restore --dbname "$BACKUP_DATABASE_URL" --no-owner --no-privileges \
 ```
 
 - El dump incluye `_prisma_migrations`: después de restaurar,
-  `pnpm exec prisma migrate status` debe quedar *up to date*; si el esquema
+  `pnpm exec prisma migrate status` debe quedar _up to date_; si el esquema
   avanzó respecto del dump, correr `pnpm exec prisma migrate deploy`.
 - Turnos e historias clínicos **no se borran nunca** desde la aplicación
   (regla dura): la restauración es la única vía de recuperación de datos.
@@ -128,8 +128,8 @@ pg_restore --dbname "$BACKUP_DATABASE_URL" --no-owner --no-privileges \
 
 **En la demo (fs):** los binarios viven en `storage-files/` **dentro del
 contenedor** de la API. No hay cómo alcanzarlos desde fuera (sin shell en
-Render) y no sobreviven redeploys — *limitación aceptada y documentada en
-ADR-016*; los archivos de la demo son de prueba.
+Render) y no sobreviven redeploys — _limitación aceptada y documentada en
+ADR-016_; los archivos de la demo son de prueba.
 
 **En producción (driver S3 compatible, `STORAGE_DRIVER=s3`):** los objetos
 son privados (solo el backend accede con `STORAGE_*`). El backup es un sync
@@ -149,15 +149,15 @@ respaldado de forma consistente (mismas claves `patients/...`).
 
 ## 6. Operaciones frecuentes
 
-| Tarea | Cómo |
-| --- | --- |
-| Ver logs / reiniciar | Render Dashboard → servicio → Logs / Manual Deploy |
-| Activar Swagger en prod | Variable `SWAGGER_ENABLED=true` en la API + redeploy (apagado por defecto) |
-| Cambiar credenciales admin | UI → Usuarios (contraseñas con Argon2id; nunca en SQL) |
-| Invitar personal | UI → Códigos de invitación (no hay registro público) |
-| Dormido de la API | Primer request tras 15 min tarda ~30-60 s (no es un error) |
-| Rate limit de login | 10 intentos/min por IP (429 en adelante) |
-| Backup puntual | `gh workflow run Backup` (§2) |
+| Tarea                      | Cómo                                                                       |
+| -------------------------- | -------------------------------------------------------------------------- |
+| Ver logs / reiniciar       | Render Dashboard → servicio → Logs / Manual Deploy                         |
+| Activar Swagger en prod    | Variable `SWAGGER_ENABLED=true` en la API + redeploy (apagado por defecto) |
+| Cambiar credenciales admin | UI → Usuarios (contraseñas con Argon2id; nunca en SQL)                     |
+| Invitar personal           | UI → Códigos de invitación (no hay registro público)                       |
+| Dormido de la API          | Primer request tras 15 min tarda ~30-60 s (no es un error)                 |
+| Rate limit de login        | 10 intentos/min por IP (429 en adelante)                                   |
+| Backup puntual             | `gh workflow run Backup` (§2)                                              |
 
 ## 7. Checklists
 

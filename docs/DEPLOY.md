@@ -52,16 +52,17 @@ git push -u origin main
    - **Instance Type**: **Free**
 3. **Environment Variables** (agregá todas antes de crear el servicio):
 
-   | Variable                  | Valor                                                      | Para qué sirve                                             |
-   | ------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------- |
-   | `DATABASE_URL`            | Internal Database URL del Paso 2                           | conexión a PostgreSQL                                      |
-   | `WEB_ORIGIN`              | `https://PENDIENTE.onrender.com` (se corrige en el Paso 5) | CORS / CSRF / enlaces                                      |
-   | `SESSION_COOKIE_SAMESITE` | `none`                                                     | cookie cross-site web↔API (ADR-016)                        |
-   | `NODE_ENV`                | `production`                                               | modo producción                                            |
-   | `TZ`                      | `America/Argentina/Buenos_Aires`                           | fechas de la agenda                                        |
-   | `STORAGE_DRIVER`          | `fs`                                                       | archivos médicos en la demo (no persisten entre redeploys) |
-   | `SEED_ADMIN_EMAIL`        | `admin@consultorio.local`                                  | email del admin inicial                                    |
-   | `SEED_ADMIN_PASSWORD`     | **una contraseña fuerte y distinta** para la demo pública  | contraseña del admin inicial                               |
+   | Variable                  | Valor                                                      | Para qué sirve                                                    |
+   | ------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------- |
+   | `DATABASE_URL`            | Internal Database URL del Paso 2                           | conexión a PostgreSQL                                             |
+   | `WEB_ORIGIN`              | `https://PENDIENTE.onrender.com` (se corrige en el Paso 5) | CORS / CSRF / enlaces                                             |
+   | `SESSION_COOKIE_SAMESITE` | `none`                                                     | cookie cross-site web↔API (ADR-016)                               |
+   | `NODE_ENV`                | `production`                                               | modo producción                                                   |
+   | `TZ`                      | `America/Argentina/Buenos_Aires`                           | fechas de la agenda                                               |
+   | `STORAGE_DRIVER`          | `fs`                                                       | archivos médicos en la demo (no persisten entre redeploys)        |
+   | `SEED_ADMIN_EMAIL`        | `admin@consultorio.local`                                  | email del admin inicial                                           |
+   | `SEED_ADMIN_PASSWORD`     | **una contraseña fuerte y distinta** para la demo pública  | contraseña del admin inicial                                      |
+   | `SWAGGER_ENABLED`         | _(dejar sin definir)_                                      | Swagger gateado: sin la env, `/api/docs` es 404 en prod (ADR-017) |
 
 4. **Advanced** → **Health Check Path**: `/api/v1/health`.
 5. **Create Web Service**. El primer build tarda ~4–8 min (instala el monorepo
@@ -124,7 +125,10 @@ Pasale solo:
 
 - **API dormida a los 15 min** sin tráfico → primera petición lenta. Para
   eliminarlo: Starter (~USD 7/mes) o un keep-alive externo.
-- **PostgreSQL free expira a los 90 días** (la demo es de corta vida).
+- **PostgreSQL free expira a los 30 días + 14 de gracia** (creada 2026-10-09 →
+  expira **2026-11-08**, según la API de Render; ADR-016 enmendado). No tiene
+  backups nativos: el respaldo es el workflow `Backup` de GitHub Actions
+  (ver siguiente sección y `docs/OPERACIONES.md`).
 - **Archivos con `STORAGE_DRIVER=fs`** no sobreviven redeploys (persistencia
   real = R2/S3, pendiente ADR-003).
 - **Solo datos de prueba**: es un sistema médico; nunca cargues datos reales
@@ -132,6 +136,16 @@ Pasale solo:
   activo.
 - El **escritorio (Tauri)** no forma parte de esta demo: apunta a la API por
   build (`NEXT_PUBLIC_API_URL`), ver ADR-015.
+
+## Backups y operaciones
+
+- **Backup automático de la BD**: workflow **`Backup`** (GitHub Actions),
+  diario 06:00 UTC + manual con `gh workflow run Backup`. Cada corrida baja
+  un `pg_dump`, lo restaura en un Postgres 16 efímero y exige conteos
+  idénticos (drill); el `.dump` queda como artefacto con retención
+  configurable (repo variable `BACKUP_RETENTION_DAYS`, default 30 días).
+- **Procedimiento de restauración, retención, backups de archivos (S3) y
+  checklist de cierre**: `docs/OPERACIONES.md`.
 
 ## Actualizaciones y rollback
 

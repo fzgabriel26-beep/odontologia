@@ -55,7 +55,7 @@ jobs:
           BACKUP_DATABASE_URL: ${{ secrets.BACKUP_DATABASE_URL }}
         run: node scripts/backup-db.mjs
 
-      - name: "Drill de restauración (SDD §7: procedimiento probado)"
+      - name: 'Drill de restauración (SDD §7: procedimiento probado)'
         env:
           PGPASSWORD: drill
           BACKUP_DATABASE_URL: ${{ secrets.BACKUP_DATABASE_URL }}

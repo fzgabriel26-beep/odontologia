@@ -3,8 +3,8 @@
 Software Design Document. Especificación viva del proyecto. Toda funcionalidad se
 implementa respetando este documento; los cambios de alcance se registran aquí primero.
 
-- **Versión:** 0.12 (Fase 12b — despliegue demo)
-- **Fecha:** 2026-10-08
+- **Versión:** 0.13 (Fase 12 — E2E, hardening, backups y Swagger)
+- **Fecha:** 2026-10-09
 - **Decisiones técnicas:** ver `docs/ADR.md`
 
 ---
@@ -283,7 +283,7 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
 | 9   | Auditoría (interceptor + panel)                                                  | ✅ Completada (2026-10-08) |
 | 10  | PDF del odontograma (Playwright, ADR-004)                                        | ✅ Completada (2026-10-08) |
 | 11  | Aplicación de escritorio (Tauri)                                                 | ✅ Completada (2026-10-08) |
-| 12  | E2E, hardening, backups/restauración                                             | Pendiente                  |
+| 12  | E2E, hardening, backups/restauración                                             | ✅ Completada (2026-10-09) |
 | 12b | Despliegue demo (GitHub + Render): Dockerfile, cookie cross-site, guía (ADR-016) | ✅ Completada (2026-10-09) |
 
 **Definición de "terminada":** UI + backend + persistencia + validaciones +

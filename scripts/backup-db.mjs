@@ -53,11 +53,9 @@ const file = join(dir, `odontologia_${stamp}.dump`);
 process.stdout.write(`[backup-db] Destino: ${file}\n`);
 process.stdout.write(`[backup-db] Retención local: ${retentionDays} días\n`);
 
-const result = spawnSync(
-  'pg_dump',
-  ['--format=custom', `--file=${file}`, `--dbname=${url}`],
-  { stdio: ['ignore', 'inherit', 'inherit'] },
-);
+const result = spawnSync('pg_dump', ['--format=custom', `--file=${file}`, `--dbname=${url}`], {
+  stdio: ['ignore', 'inherit', 'inherit'],
+});
 
 if (result.error?.code === 'ENOENT') {
   fail(
