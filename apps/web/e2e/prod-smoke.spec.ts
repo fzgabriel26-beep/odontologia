@@ -23,6 +23,8 @@ test.describe('Smoke del deploy público', () => {
     const csp = headers['content-security-policy'] ?? '';
     expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).toContain("default-src 'self'");
+    // Vista previa in-app de estudios (blob del proxy autenticado).
+    expect(csp).toContain('frame-src blob:');
 
     const html = await response.text();
     expect(html).toContain('Sistema de Gestión Odontológica');

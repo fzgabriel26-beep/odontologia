@@ -21,7 +21,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: http://localhost:3001 https:; font-src 'self' data:; connect-src 'self' http://localhost:3001 https:; object-src 'none'; base-uri 'self'; frame-src 'none'"
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: http://localhost:3001 https:; font-src 'self' data:; connect-src 'self' http://localhost:3001 https:; object-src 'none'; base-uri 'self'; frame-src blob:"
     }
   },
   "bundle": {

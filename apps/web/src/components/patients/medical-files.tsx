@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { FILE_KINDS, FILE_KIND_LABELS } from '@odonto/types';
 import { ApiError, apiFetch } from '@/lib/api';
 import {
@@ -16,6 +16,13 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { NativeSelect } from '@/components/ui/native-select';
@@ -184,20 +191,58 @@ function FileEntry({
   file: MedicalFile;
   onArchive: (file: MedicalFile) => void;
 }) {
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewMime, setPreviewMime] = useState('');
+  const [previewError, setPreviewError] = useState<string | null>(null);
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+  const previewUrlRef = useRef<string | null>(null);
+
+  /** Libera el blob: al cerrar, al reemplazarlo y al desmontar. */
+  const releasePreview = useCallback(() => {
+    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+    previewUrlRef.current = null;
+    setPreviewUrl(null);
+  }, []);
+
+  useEffect(() => releasePreview, [releasePreview]);
+
+  /**
+   * Vista previa in-app: el contenido se baja por el MISMO proxy
+   * autenticado (fetch con cookies) y se muestra como `blob:` en un
+   * diálogo. Sin pestañas nuevas (WebView2/Tauri las bloquea) y sin
+   * URLs públicas (SDD, fase 7 / CU-10).
+   */
+  const openPreview = useCallback(async () => {
+    setShowPreview(true);
+    setPreviewError(null);
+    setIsLoadingPreview(true);
+    releasePreview();
+    try {
+      const response = await fetch(fileContentUrl(file.id), { credentials: 'include' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      previewUrlRef.current = url;
+      setPreviewUrl(url);
+      setPreviewMime(blob.type || file.mimeType);
+    } catch {
+      setPreviewError('No se pudo cargar la vista previa. Probá de nuevo o descargá el archivo.');
+    } finally {
+      setIsLoadingPreview(false);
+    }
+  }, [file.id, file.mimeType, releasePreview]);
+
+  const isImage = previewMime.startsWith('image/');
+  const isPdf = previewMime === 'application/pdf';
+
   return (
     <div className="flex flex-wrap items-start justify-between gap-3 rounded-lg border bg-background p-4">
       <div className="min-w-0 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
-          {/* Vista previa en el navegador (proxy inline autenticado). */}
-          <a
-            href={fileContentUrl(file.id)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="max-w-[20rem] truncate text-sm font-medium underline-offset-2 hover:underline"
-            title={`Ver ${file.originalName}`}
-          >
+          <span className="max-w-[20rem] truncate text-sm font-medium" title={file.originalName}>
             {file.name}
-          </a>
+          </span>
           <Badge tone="info">{FILE_KIND_LABELS[file.kind]}</Badge>
         </div>
         <p className="text-xs text-muted-foreground">
@@ -210,6 +255,14 @@ function FileEntry({
       </div>
 
       <div className="flex shrink-0 gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => void openPreview()}
+          disabled={isLoadingPreview}
+        >
+          Ver
+        </Button>
         <Button variant="outline" size="sm" asChild>
           {/* Descarga forzada con Content-Disposition: attachment. */}
           <a href={fileContentUrl(file.id, 'attachment')} download={file.originalName}>
@@ -220,6 +273,56 @@ function FileEntry({
           Archivar
         </Button>
       </div>
+
+      <Dialog
+        open={showPreview}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowPreview(false);
+            releasePreview();
+          }
+        }}
+      >
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>{file.name}</DialogTitle>
+            <DialogDescription>
+              {FILE_KIND_LABELS[file.kind]} · {formatFileSize(file.size)} · {file.mimeType}
+            </DialogDescription>
+          </DialogHeader>
+
+          {isLoadingPreview ? (
+            <p className="text-sm text-muted-foreground">Cargando vista previa…</p>
+          ) : null}
+
+          {previewError ? (
+            <Alert variant="destructive">
+              <AlertDescription>{previewError}</AlertDescription>
+            </Alert>
+          ) : null}
+
+          {!isLoadingPreview && !previewError && previewUrl ? (
+            isImage ? (
+              <img
+                src={previewUrl}
+                alt={`Vista previa de ${file.name}`}
+                className="mx-auto max-h-[65vh] rounded-md"
+              />
+            ) : isPdf ? (
+              <iframe
+                src={previewUrl}
+                title={`Vista previa de ${file.name}`}
+                className="h-[65vh] w-full rounded-md border"
+              />
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Este formato ({file.mimeType}) no se puede previsualizar en el navegador. Descargalo
+                y abrilo con una aplicación especializada (p. ej. un visor DICOM).
+              </p>
+            )
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
