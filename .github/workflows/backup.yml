@@ -1,0 +1,97 @@
+name: Backup
+
+on:
+  schedule:
+    # Diario 06:00 UTC (03:00 ART), horario sin uso de la demo.
+    - cron: '0 6 * * *'
+  # Disparable a mano para un drill o un backup puntual:
+  #   gh workflow run Backup
+  workflow_dispatch:
+
+env:
+  TZ: America/Argentina/Buenos_Aires
+  BACKUP_DIR: backups
+  # Retención configurable sin editar este archivo: repo variable
+  # BACKUP_RETENTION_DAYS (default 30 días).
+  BACKUP_RETENTION_DAYS: ${{ vars.BACKUP_RETENTION_DAYS || '30' }}
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    # Postgres 16 efímero para el drill de restauración (misma versión mayor
+    # que la BD de Render; el dump se restaura y se verifica allí).
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: drill
+          POSTGRES_DB: drill
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # El script usa solo módulos nativos de Node (no hay dependencias que
+      # instalar): no hace falta pnpm en este workflow.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Cliente PostgreSQL (pg_dump / pg_restore / psql)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client
+
+      - name: Backup lógico (pg_dump contra Render)
+        env:
+          BACKUP_DATABASE_URL: ${{ secrets.BACKUP_DATABASE_URL }}
+        run: node scripts/backup-db.mjs
+
+      - name: Drill de restauración (SDD §7: procedimiento probado)
+        env:
+          PGPASSWORD: drill
+          BACKUP_DATABASE_URL: ${{ secrets.BACKUP_DATABASE_URL }}
+        run: |
+          set -euo pipefail
+          # AuditLog queda FUERA de la igualdad: cambia con cada login y el
+          # smoke de producción puede escribir mientras corre el drill.
+          SQL='SELECT (SELECT count(*) FROM "User"), (SELECT count(*) FROM "Patient"), (SELECT count(*) FROM "Appointment"), (SELECT count(*) FROM "ClinicalRecord");'
+          DUMP="$(ls -t "$BACKUP_DIR"/*.dump | head -n1)"
+
+          echo "== Conteos en la fuente (Render):"
+          SRC="$(psql --dbname "$BACKUP_DATABASE_URL" -tA -c "$SQL")"
+          echo "   $SRC"
+
+          echo "== Restaurando $DUMP en el Postgres efímero:"
+          pg_restore --host localhost --username postgres --dbname drill \
+            --no-owner --no-privileges --exit-on-error "$DUMP"
+          DST="$(psql --host localhost --username postgres --dbname drill -tA -c "$SQL")"
+          echo "   $DST"
+          AUDIT="$(psql --host localhost --username postgres --dbname drill -tA -c 'SELECT count(*) FROM "AuditLog";')"
+          echo "   AuditLog=$AUDIT"
+
+          if [ "$SRC" != "$DST" ]; then
+            echo "::error::Conteos distintos tras el restore (fuente=$SRC restaurado=$DST)"
+            exit 1
+          fi
+          if [ "$AUDIT" -lt 1 ]; then
+            echo "::error::La tabla AuditLog quedó vacía tras el restore"
+            exit 1
+          fi
+          echo "Drill OK: conteos restaurados idénticos a la fuente."
+
+      - name: Publicar artefacto (retención configurable)
+        uses: actions/upload-artifact@v4
+        with:
+          name: odontologia-db-${{ github.run_number }}
+          path: backups/*.dump
+          retention-days: ${{ vars.BACKUP_RETENTION_DAYS || 30 }}
+          if-no-files-found: error
