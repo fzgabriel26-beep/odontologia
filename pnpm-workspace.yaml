@@ -10,3 +10,5 @@ allowBuilds:
   esbuild: true
   prisma: true
   workerd: true
+  # Telemetría de terceros: nunca corre en este proyecto (política de seguridad).
+  '@scarf/scarf': false
