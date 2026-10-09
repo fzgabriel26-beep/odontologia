@@ -107,6 +107,7 @@ Fecha en formato AAAA-MM-DD.
   2. `CsrfOriginGuard` rechaza con `403 CSRF_ORIGIN_REJECTED` todo `POST/PUT/PATCH/DELETE` cuya cabecera `Origin` no coincida con `WEB_ORIGIN`, `CSRF_ORIGINS` ni el host de la API. Requests sin `Origin` (clientes no navegador) no se validan.
 - **Consecuencias:** Sin tokens CSRF ni cambios en el frontend; los E2E y `curl` siguen funcionando. Si algún día el frontend se sirve de otro origen, se agrega a `CSRF_ORIGINS`.
 - **Enmienda (fase 11, ADR-015):** `WEB_ORIGIN` es ahora una lista separada por coma (incluye `http://tauri.localhost`) y el login desde la webview de escritorio emite la cookie con `SameSite=None; Secure` (origen cross-site). Web conserva `SameSite=Lax`; el `CsrfOriginGuard` no cambia.
+- **Enmienda (despliegue, ADR-016):** con `SESSION_COOKIE_SAMESITE=none` (entorno desplegado, web y API en origen cruzado) el login del web también emite `SameSite=None; Secure`. Sin la env, el comportamiento local por defecto sigue siendo `SameSite=Lax`. El `CsrfOriginGuard` no cambia.
 
 ## ADR-013 — El código de invitación define el rol que recibirá la cuenta
 
@@ -133,3 +134,16 @@ Fecha en formato AAAA-MM-DD.
   4. **Cookie de sesión:** login con Origin de escritorio ⇒ `SameSite=None; Secure` (`Secure` es válido sobre `http://localhost`, origen confiable); web ⇒ `SameSite=Lax` sin cambios (ADR-012) y el `CsrfOriginGuard` sigue validando toda mutación en el backend.
   5. **CSP:** `script-src 'self' 'unsafe-inline'` porque el export de Next embebe el payload RSC en scripts inline (necesario para hidratar); `connect-src`/`img-src` permiten `http://localhost:3001` y `https:` (producción con API en HTTPS, SDD §7).
 - **Consecuencias:** El `.exe` funciona sin servidor web (solo requiere la API). Los scripts del escritorio (`tauri:dev`, `tauri:build`) están deliberadamente fuera de `turbo dev`/`turbo build`: compilar Rust no es requisito para desarrollar web/API y `pnpm dev` no debe abrir ventanas ni pelear por el puerto 3000. Requieren toolchain Rust (rustup) + VS Build Tools. El trade-off de `script-src 'unsafe-inline'` se acepta porque la app no renderiza HTML de usuario y los archivos clínicos se entregan como blob/descarga; convendrá reforzar si algún día se inyecta HTML externo.
+
+## ADR-016 — Despliegue demo: GitHub (repo privado) + Render (web estático, API y PostgreSQL)
+
+- **Fecha:** 2026-10-08
+- **Contexto:** Se quiere que un tercero pruebe la web sin clonar el repo ni instalar dependencias (solo un link + credenciales). El MVP no define proveedor de hosting, el entorno no tiene Docker local (ADR-009) y la única cuenta de infraestructura disponible es GitHub.
+- **Decisión:**
+  1. **Repositorio:** el monorepo se sube a GitHub como repo **privado**; es la fuente del deploy (cada push a `main` redeploya) pero el probador nunca lo ve.
+  2. **Web:** export estático de `apps/web` (`apps/web/out`) publicado en **Render Static Sites**, con `NEXT_PUBLIC_API_URL` compilado hacia el API desplegado.
+  3. **API:** **Render Web Service** construido desde el `Dockerfile` de la raíz (`node:24-slim` + pnpm; `prisma migrate deploy` idempotente en cada arranque). El puerto lo inyecta la plataforma (`PORT`, ver `apps/api/src/main.ts`); `Health Check Path` = `/api/v1/health`.
+  4. **Base de datos:** PostgreSQL administrado de Render (plan free; la BD expira a los 90 días — la demo es de corta vida).
+  5. **Cookie cross-site (enmienda a ADR-012/015):** el web desplegado y la API viven en origen cruzado, así que la env `SESSION_COOKIE_SAMESITE=none` hace que cualquier origen reciba `SameSite=None; Secure` (requiere HTTPS, que Render provee). En local, sin la env, se mantiene `SameSite=Lax`.
+  6. **Storage:** `STORAGE_DRIVER=fs` para la demo (los archivos no sobreviven redeploys); R2/S3 queda para después (ADR-003 pendiente).
+- **Consecuencias:** El probador solo recibe el link y las credenciales del seed. Costo $0 (planes free) con limitaciones conocidas: la API duerme a los 15 min (primera carga lenta), la BD free expira a los 90 días y los archivos subidos se pierden al redeploy. No se pudo verificar el build Docker localmente (sin Docker); la verificación real es el primer deploy. El repo es la única fuente de verdad; los pasos de cuenta están en `docs/DEPLOY.md`.

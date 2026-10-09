@@ -11,7 +11,9 @@ async function bootstrap(): Promise<void> {
   // (tauri.localhost), ADR-015.
   app.enableCors(corsOptions());
 
-  const port = Number(process.env.API_PORT ?? 3001);
+  // Puerto: `API_PORT` local (por defecto 3001) o el que inyecta la
+  // plataforma de despliegue (Render usa `PORT`, ADR-016).
+  const port = Number(process.env.API_PORT ?? process.env.PORT ?? 3001);
   await app.listen(port);
   // Log sin información sensible (SDD §7).
   console.warn(`API escuchando en http://localhost:${port}/api/v1`);

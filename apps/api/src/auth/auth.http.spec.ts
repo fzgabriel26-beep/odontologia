@@ -152,4 +152,24 @@ describe('Autenticación HTTP (cookie de sesión)', () => {
     expect(cookie).toContain('SameSite=Lax');
     expect(cookie).not.toContain('SameSite=None');
   });
+
+  it('emite SameSite=None; Secure en el web con SESSION_COOKIE_SAMESITE=none (ADR-016)', async () => {
+    // Despliegue: web y API en dominios distintos (cross-site). La env fuerza
+    // el modo escritorio para cualquier origen. Se restaura al finalizar para
+    // no afectar a otros tests del proceso.
+    process.env.SESSION_COOKIE_SAMESITE = 'none';
+    try {
+      const response = await request(app.getHttpServer())
+        .post('/auth/login')
+        .set('Origin', 'http://localhost:3000')
+        .send({ email: 'admin@consultorio.local', password: 'Admin1234!' });
+
+      expect(response.status).toBe(200);
+      const cookie = response.headers['set-cookie']?.[0] ?? '';
+      expect(cookie).toContain('SameSite=None');
+      expect(cookie).toContain('; Secure');
+    } finally {
+      delete process.env.SESSION_COOKIE_SAMESITE;
+    }
+  });
 });

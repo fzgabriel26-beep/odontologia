@@ -31,12 +31,17 @@ export interface SessionCookieContext {
  *   así que `SameSite=Lax` impediría enviar la cookie. Se usa
  *   `SameSite=None; Secure` (ADR-015). `Secure` es válido sobre
  *   `http://localhost` (origen confiable del navegador).
+ * - Despliegue (ADR-016): cuando el web y el API viven en dominios distintos
+ *   (p. ej. `*.onrender.com` sitio + `*.onrender.com` API con la Public
+ *   Suffix List, o dominios distintos), el web también es cross-site con la
+ *   API: `SESSION_COOKIE_SAMESITE=none` fuerza `SameSite=None; Secure` para
+ *   cualquier origen (requiere HTTPS, que los proveedores de hosting proveen).
  */
 function sessionCookieAttributes(context: SessionCookieContext): {
   sameSite: 'lax' | 'none';
   secure: boolean;
 } {
-  if (isDesktopOrigin(context.origin)) {
+  if (isDesktopOrigin(context.origin) || process.env.SESSION_COOKIE_SAMESITE === 'none') {
     return { sameSite: 'none', secure: true };
   }
   return { sameSite: 'lax', secure: process.env.NODE_ENV === 'production' };
