@@ -6,31 +6,32 @@
 
 /* ---------------------------------------------------------------
    Tokens de tema estilo shadcn/ui (requeridos por los componentes
-   de components/ui). Paleta "tenue": blancos cálidos, dorado claro
-   suave, bordes sutiles y tipografía sencilla (rediseño general).
+   de components/ui). Sistema visual "dashboard analítico": fondo
+   gris-azulado claro, superficies blancas con bordes sutiles, azul
+   como color primario y tipografía sans limpia (Inter).
    --------------------------------------------------------------- */
 :root {
   color-scheme: light;
-  --background: oklch(0.995 0.002 95);
-  --foreground: oklch(0.28 0.015 85);
+  --background: oklch(0.968 0.004 255);
+  --foreground: oklch(0.28 0.02 260);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.28 0.015 85);
+  --card-foreground: oklch(0.28 0.02 260);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.28 0.015 85);
-  --primary: oklch(0.88 0.065 88);
-  --primary-foreground: oklch(0.32 0.035 85);
-  --secondary: oklch(0.965 0.008 90);
-  --secondary-foreground: oklch(0.32 0.02 85);
-  --muted: oklch(0.965 0.008 90);
-  --muted-foreground: oklch(0.53 0.012 85);
-  --accent: oklch(0.93 0.045 88);
-  --accent-foreground: oklch(0.32 0.03 85);
+  --popover-foreground: oklch(0.28 0.02 260);
+  --primary: oklch(0.546 0.215 262);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.955 0.008 255);
+  --secondary-foreground: oklch(0.32 0.05 262);
+  --muted: oklch(0.955 0.008 255);
+  --muted-foreground: oklch(0.52 0.015 260);
+  --accent: oklch(0.95 0.025 255);
+  --accent-foreground: oklch(0.45 0.16 262);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.915 0.008 90);
-  --input: oklch(0.915 0.008 90);
-  --ring: oklch(0.82 0.07 88);
-  --radius: 0.5rem;
+  --border: oklch(0.905 0.008 255);
+  --input: oklch(0.905 0.008 255);
+  --ring: oklch(0.546 0.215 262);
+  --radius: 0.75rem;
 }
 
 @theme inline {
@@ -53,8 +54,6 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  /* Dorado profundo: solo texto/acento (el dorado claro es --primary). */
-  --color-gold: oklch(0.5 0.06 85);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

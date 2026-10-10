@@ -84,7 +84,7 @@ function AppChrome({ children }: { children: ReactNode }) {
       <aside className="hidden w-60 shrink-0 flex-col border-r bg-card md:flex">
         <div className="border-b px-4 py-4">
           <p className="text-sm font-semibold leading-tight">Sistema de Gestión</p>
-          <p className="text-sm font-semibold leading-tight text-gold">Odontológica</p>
+          <p className="text-sm font-semibold leading-tight text-primary">Odontológica</p>
         </div>
         <nav className="flex flex-1 flex-col gap-1 p-3" aria-label="Navegación principal">
           {visibleItems.map((item) => (
