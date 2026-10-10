@@ -6,32 +6,33 @@
 
 /* ---------------------------------------------------------------
    Tokens de tema estilo shadcn/ui (requeridos por los componentes
-   de components/ui). Sistema visual "dashboard analítico": fondo
-   gris-azulado claro, superficies blancas con bordes sutiles, azul
-   como color primario y tipografía sans limpia (Inter).
+   de components/ui). Sistema visual "dashboard analitico" tomado del
+   diseño de referencia en Figma (valores exactos): fondo #f1f2f4,
+   texto #051635, primario #007dfc, secundario #8a94a6, píldora
+   #eff6ff, cards con radio 16 y sombra suave. Tipografía Inter.
    --------------------------------------------------------------- */
 :root {
   color-scheme: light;
-  --background: oklch(0.968 0.004 255);
-  --foreground: oklch(0.28 0.02 260);
+  --background: oklch(0.952 0.004 258);
+  --foreground: oklch(0.223 0.055 260);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.28 0.02 260);
+  --card-foreground: oklch(0.223 0.055 260);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.28 0.02 260);
-  --primary: oklch(0.546 0.215 262);
+  --popover-foreground: oklch(0.223 0.055 260);
+  --primary: oklch(0.585 0.17 255);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.955 0.008 255);
-  --secondary-foreground: oklch(0.32 0.05 262);
-  --muted: oklch(0.955 0.008 255);
-  --muted-foreground: oklch(0.52 0.015 260);
-  --accent: oklch(0.95 0.025 255);
-  --accent-foreground: oklch(0.45 0.16 262);
+  --secondary: oklch(0.965 0.002 260);
+  --secondary-foreground: oklch(0.35 0.01 260);
+  --muted: oklch(0.965 0.002 260);
+  --muted-foreground: oklch(0.645 0.02 255);
+  --accent: oklch(0.97 0.012 255);
+  --accent-foreground: oklch(0.585 0.17 255);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.905 0.008 255);
-  --input: oklch(0.905 0.008 255);
-  --ring: oklch(0.546 0.215 262);
-  --radius: 0.75rem;
+  --border: oklch(0.885 0.002 265);
+  --input: oklch(0.885 0.002 265);
+  --ring: oklch(0.585 0.17 255);
+  --radius: 0.5rem;
 }
 
 @theme inline {

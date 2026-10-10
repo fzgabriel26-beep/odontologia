@@ -75,7 +75,7 @@ export default function PatientsPage() {
     <div className="mx-auto w-full max-w-5xl space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-lg font-semibold">Pacientes</h1>
+          <h1 className="text-2xl font-semibold">Pacientes</h1>
           <p className="text-sm text-muted-foreground">
             Fichas, búsqueda y archivado (CU-06 y CU-07).
           </p>

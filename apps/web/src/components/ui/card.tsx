@@ -1,12 +1,15 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 
-/** Tarjeta (shadcn/ui). */
+/** Tarjeta (shadcn/ui): radio 16 y sombra suave del diseño de referencia. */
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn('rounded-xl border bg-card text-card-foreground shadow', className)}
+      className={cn(
+        'rounded-2xl border bg-card text-card-foreground shadow-[0_4px_8px_rgba(0,0,0,0.06),0_0_1px_rgba(0,0,0,0.05)]',
+        className,
+      )}
       {...props}
     />
   ),

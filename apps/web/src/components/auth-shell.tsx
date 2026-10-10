@@ -14,7 +14,7 @@ export function AuthShell({ title, description, children, footer }: AuthShellPro
     <main className="flex min-h-screen items-center justify-center bg-background p-6">
       <div className="w-full max-w-md space-y-6">
         <header className="space-y-1 text-center">
-          <h1 className="text-lg font-semibold">Sistema de Gestión Odontológica</h1>
+          <h1 className="text-2xl font-semibold">Sistema de Gestión Odontológica</h1>
           <p className="text-sm text-muted-foreground">{description}</p>
         </header>
 

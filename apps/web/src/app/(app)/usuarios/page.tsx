@@ -88,7 +88,7 @@ export default function UsersPage() {
     <div className="mx-auto w-full max-w-5xl space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-lg font-semibold">Usuarios</h1>
+          <h1 className="text-2xl font-semibold">Usuarios</h1>
           <p className="text-sm text-muted-foreground">
             Cuentas del personal, roles y estados (CU-05).
           </p>

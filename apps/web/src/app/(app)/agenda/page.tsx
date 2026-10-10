@@ -10,7 +10,7 @@ export default function AgendaPage() {
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6">
       <header>
-        <h1 className="text-lg font-semibold">Agenda</h1>
+        <h1 className="text-2xl font-semibold">Agenda</h1>
         <p className="text-sm text-muted-foreground">
           Turnos del día con estados, señas e historial. Los turnos nunca se borran: se cancelan,
           marcan ausentes o reprograman con motivo.

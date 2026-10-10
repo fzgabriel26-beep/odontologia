@@ -89,7 +89,7 @@ export default function DashboardPage() {
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6">
       <header>
-        <h1 className="text-lg font-semibold">Dashboard</h1>
+        <h1 className="text-2xl font-semibold">Dashboard</h1>
         <p className="text-sm text-muted-foreground">
           Hola, {user.firstName} {user.lastName} · {roleLabel}
         </p>

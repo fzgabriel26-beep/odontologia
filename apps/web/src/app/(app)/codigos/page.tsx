@@ -108,7 +108,7 @@ export default function InvitationCodesPage() {
   return (
     <div className="mx-auto w-full max-w-5xl space-y-6">
       <header>
-        <h1 className="text-lg font-semibold">Códigos de invitación</h1>
+        <h1 className="text-2xl font-semibold">Códigos de invitación</h1>
         <p className="text-sm text-muted-foreground">
           Generá códigos para registrar cuentas nuevas (CU-04). Cada código tiene un rol y puede
           revocarse.
