@@ -255,10 +255,12 @@ Base `/api/v1`, documentada con Swagger. Errores uniformes
 - Dashboard: turnos del día, próximos turnos, pendientes, confirmados, atendidos,
   cancelaciones, ausencias + accesos rápidos (nuevo paciente, buscar paciente, nuevo
   turno, abrir agenda). Sin estadísticas innecesarias.
-- Agenda: vista diaria con navegación (◀ / Hoy / ▶), selector de fecha, filtro por
-  profesional, alta/edición de turnos, cambio de estado con motivo obligatorio,
-  registro/anulación de seña, historial de estados y badge de seña pendiente.
-  Las vistas semana/mes de §2.1 quedan pendientes de confirmación de alcance.
+- Agenda: vistas diaria, semanal y mensual con navegación contextual (◀ / Hoy / ▶),
+  selector de fecha, filtro por profesional, alta/edición de turnos, cambio de
+  estado con motivo obligatorio, registro/anulación de seña, historial de estados
+  y badge de seña pendiente. La vista mensual permite hacer clic sobre un día
+  para ir a la agenda diaria; las vistas semanal y mensual reutilizan las mismas
+  acciones de turno por día.
 - Ficha del paciente: pestañas Datos personales · Historia clínica · Odontograma ·
   Estudios/Archivos · Turnos · Historial (auditoría del paciente desde la fase 9;
   requiere `audit.read`, el resto del personal ve un mensaje de permiso).

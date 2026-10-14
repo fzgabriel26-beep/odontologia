@@ -158,6 +158,7 @@ function PatientPicker({ onSelect }: { onSelect: (patient: Patient | null) => vo
 export function AppointmentFormDialog({
   appointment,
   patient,
+  initialDate,
   onCancel,
   onSaved,
 }: {
@@ -165,6 +166,8 @@ export function AppointmentFormDialog({
   appointment: Appointment | null;
   /** Paciente fijo (alta desde la ficha); si falta, se busca en el formulario. */
   patient?: AppointmentPatientRef | null;
+  /** Fecha inicial sugerida al crear (por defecto hoy). */
+  initialDate?: string;
   onCancel: () => void;
   onSaved: () => void;
 }) {
@@ -201,7 +204,7 @@ export function AppointmentFormDialog({
       : {
           patientId: fixedPatient?.id ?? '',
           professionalId: '',
-          date: todayIso(),
+          date: initialDate ?? todayIso(),
           time: '09:00',
           durationMin: 30,
           reason: '',
